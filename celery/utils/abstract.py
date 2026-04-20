@@ -6,7 +6,7 @@ __all__ = ('CallableTask', 'CallableSignature')
 
 
 def _hasattr(C, attr):
-    return any(attr in B.__dict__ for B in C.__mro__)
+    pass
 
 
 class _AbstractClass(metaclass=ABCMeta):
@@ -14,10 +14,7 @@ class _AbstractClass(metaclass=ABCMeta):
 
     @classmethod
     def _subclasshook_using(cls, parent, C):
-        return (
-            cls is parent and
-            all(_hasattr(C, attr) for attr in cls.__required_attributes__)
-        ) or NotImplemented
+        pass
 
     @classmethod
     def register(cls, other):

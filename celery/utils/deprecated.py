@@ -50,26 +50,14 @@ def Callable(deprecation=None, removal=None,
     def _inner(fun):
 
         @wraps(fun)
-        def __inner(*args, **kwargs):
-            from .imports import qualname
-            warn(description=description or qualname(fun),
-                 deprecation=deprecation,
-                 removal=removal,
-                 alternative=alternative,
-                 stacklevel=3)
-            return fun(*args, **kwargs)
-        return __inner
+        pass
     return _inner
 
 
 def Property(deprecation=None, removal=None,
              alternative=None, description=None):
     """Decorator for deprecated properties."""
-    def _inner(fun):
-        return _deprecated_property(
-            fun, deprecation=deprecation, removal=removal,
-            alternative=alternative, description=description or fun.__name__)
-    return _inner
+    pass
 
 
 class _deprecated_property:
@@ -107,7 +95,7 @@ class _deprecated_property:
         self.__del(obj)
 
     def setter(self, fset):
-        return self.__class__(self.__get, fset, self.__del, **self.depreinfo)
+        pass
 
     def deleter(self, fdel):
-        return self.__class__(self.__get, self.__set, fdel, **self.depreinfo)
+        pass

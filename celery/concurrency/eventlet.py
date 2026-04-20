@@ -46,25 +46,10 @@ class Timer(_timer.Timer):
         self._queue = set()
 
     def _enter(self, eta, priority, entry, **kwargs):
-        secs = max(eta - monotonic(), 0)
-        g = self._spawn_after(secs, entry)
-        self._queue.add(g)
-        g.link(self._entry_exit, entry)
-        g.entry = entry
-        g.eta = eta
-        g.priority = priority
-        g.canceled = False
-        return g
+        pass
 
     def _entry_exit(self, g, entry):
-        try:
-            try:
-                g.wait()
-            except self.GreenletExit:
-                entry.cancel()
-                g.canceled = True
-        finally:
-            self._queue.discard(g)
+        pass
 
     def clear(self):
         queue = self._queue
@@ -162,10 +147,7 @@ class TaskPool(base.BasePool):
     @staticmethod
     def _make_killable_target(target):
         def killable_target(*args, **kwargs):
-            try:
-                return target(*args, **kwargs)
-            except GreenletExit:
-                return (False, None, None)
+            pass
         return killable_target
 
     def _add_to_pool_map(self, pid, greenlet):
@@ -178,4 +160,4 @@ class TaskPool(base.BasePool):
 
     @staticmethod
     def _cleanup_after_job_finish(greenlet, pool_map, pid):
-        del pool_map[pid]
+        pass

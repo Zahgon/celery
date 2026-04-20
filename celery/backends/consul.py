@@ -95,20 +95,7 @@ class ConsulBackend(KeyValueStoreBackend):
         If the session expires it will remove the key so that results
         can auto expire from the K/V store
         """
-        session_name = bytes_to_str(key)
-
-        key = self._key_to_consul_key(key)
-
-        logger.debug('Trying to create Consul session %s with TTL %d',
-                     session_name, self.expires)
-        client = self.client()
-        session_id = client.session.create(name=session_name,
-                                           behavior='delete',
-                                           ttl=self.expires)
-        logger.debug('Created Consul session %s', session_id)
-
-        logger.debug('Writing key %s to Consul', key)
-        return client.kv.put(key=key, value=value, acquire=session_id)
+        pass
 
     def delete(self, key):
         key = self._key_to_consul_key(key)

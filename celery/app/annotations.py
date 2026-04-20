@@ -19,10 +19,7 @@ class MapAnnotation(dict):
     """Annotation map: task_name => attributes."""
 
     def annotate_any(self):
-        try:
-            return dict(self['*'])
-        except KeyError:
-            pass
+        pass
 
     def annotate(self, task):
         try:
@@ -49,4 +46,4 @@ def prepare(annotations):
 
 def resolve_all(anno, task):
     """Resolve all pending annotations."""
-    return (x for x in (_first_match(anno, task), _first_match_any(anno)) if x)
+    pass

@@ -92,16 +92,7 @@ class ManagerMixin:
                                interval_max=1.0, emit_warning=False,
                                **options):
         """Make sure something does not happen (at least for a while)."""
-        try:
-            return self.wait_for(
-                fun, catch, desc=desc, max_retries=max_retries,
-                interval_start=interval_start, interval_step=interval_step,
-                interval_max=interval_max, emit_warning=emit_warning,
-            )
-        except catch:
-            pass
-        else:
-            raise AssertionError(f'Should not have happened: {desc}')
+        pass
 
     def retry_over_time(self, *args, **kwargs):
         return retry_over_time(*args, **kwargs)
@@ -114,7 +105,7 @@ class ManagerMixin:
         received = []
 
         def on_result(task_id, value):
-            received.append(task_id)
+            pass
 
         for i in range(max_retries) if max_retries else count(0):
             received[:] = []
@@ -135,27 +126,18 @@ class ManagerMixin:
         return self.app.control.inspect(timeout=timeout)
 
     def query_tasks(self, ids, timeout=0.5):
-        tasks = self.inspect(timeout).query_task(*ids) or {}
-        yield from tasks.items()
+        pass
 
     def query_task_states(self, ids, timeout=0.5):
-        states = defaultdict(set)
-        for hostname, reply in self.query_tasks(ids, timeout=timeout):
-            for task_id, (state, _) in reply.items():
-                states[state].add(task_id)
-        return states
+        pass
 
     def assert_accepted(self, ids, interval=0.5,
                         desc='waiting for tasks to be accepted', **policy):
-        return self.assert_task_worker_state(
-            self.is_accepted, ids, interval=interval, desc=desc, **policy
-        )
+        pass
 
     def assert_received(self, ids, interval=0.5,
                         desc='waiting for tasks to be received', **policy):
-        return self.assert_task_worker_state(
-            self.is_received, ids, interval=interval, desc=desc, **policy
-        )
+        pass
 
     def assert_result_tasks_in_progress_or_completed(
             self,
@@ -164,71 +146,33 @@ class ManagerMixin:
             desc='waiting for tasks to be started or completed',
             **policy
     ):
-        return self.assert_task_state_from_result(
-            self.is_result_task_in_progress,
-            async_results,
-            interval=interval, desc=desc, **policy
-        )
+        pass
 
     def assert_task_state_from_result(self, fun, results,
                                       interval=0.5, **policy):
-        return self.wait_for(
-            partial(self.true_or_raise, fun, results, timeout=interval),
-            (Sentinel,), **policy
-        )
+        pass
 
     @staticmethod
     def is_result_task_in_progress(results, **kwargs):
-        possible_states = (states.STARTED, states.SUCCESS)
-        return all(result.state in possible_states for result in results)
+        pass
 
     def assert_task_worker_state(self, fun, ids, interval=0.5, **policy):
-        return self.wait_for(
-            partial(self.true_or_raise, fun, ids, timeout=interval),
-            (Sentinel,), **policy
-        )
+        pass
 
     def is_received(self, ids, **kwargs):
-        return self._ids_matches_state(
-            ['reserved', 'active', 'ready'], ids, **kwargs)
+        pass
 
     def is_accepted(self, ids, **kwargs):
-        return self._ids_matches_state(['active', 'ready'], ids, **kwargs)
+        pass
 
     def _ids_matches_state(self, expected_states, ids, timeout=0.5):
-        states = self.query_task_states(ids, timeout=timeout)
-        return all(
-            any(t in s for s in [states[k] for k in expected_states])
-            for t in ids
-        )
+        pass
 
     def true_or_raise(self, fun, *args, **kwargs):
-        res = fun(*args, **kwargs)
-        if not res:
-            raise Sentinel()
-        return res
+        pass
 
     def wait_until_idle(self):
-        control = self.app.control
-        with self.app.connection() as connection:
-            # Try to purge the queue before we start
-            # to attempt to avoid interference from other tests
-            while True:
-                count = control.purge(connection=connection)
-                if count == 0:
-                    break
-
-            # Wait until worker is idle
-            inspect = control.inspect()
-            inspect.connection = connection
-            while True:
-                try:
-                    count = sum(len(t) for t in inspect.active().values())
-                except ContentDisallowed:
-                    # test_security_task_done may trigger this exception
-                    break
-                if count == 0:
-                    break
+        pass
 
 
 class Manager(ManagerMixin):

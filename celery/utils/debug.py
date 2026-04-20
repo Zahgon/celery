@@ -32,10 +32,7 @@ _mem_sample = []
 
 
 def _on_blocking(signum, frame):
-    import inspect
-    raise RuntimeError(
-        f'Blocking detection timed-out at: {inspect.getframeinfo(frame)}'
-    )
+    pass
 
 
 @contextmanager
@@ -44,20 +41,7 @@ def blockdetection(timeout):
 
     Uses ``SIGALRM`` to detect blocking functions.
     """
-    if not timeout:
-        yield
-    else:
-        old_handler = signals['ALRM']
-        old_handler = None if old_handler == _on_blocking else old_handler
-
-        signals['ALRM'] = _on_blocking
-
-        try:
-            yield signals.arm_alarm(timeout)
-        finally:
-            if old_handler:
-                signals['ALRM'] = old_handler
-            signals.reset_alarm()
+    pass
 
 
 def sample_mem():
@@ -71,13 +55,7 @@ def sample_mem():
 
 
 def _memdump(samples=10):  # pragma: no cover
-    S = _mem_sample
-    prev = list(S) if len(S) <= samples else sample(S, samples)
-    _mem_sample[:] = []
-    import gc
-    gc.collect()
-    after_collect = mem_rss()
-    return prev, after_collect
+    pass
 
 
 def memdump(samples=10, file=None):  # pragma: no cover
@@ -87,16 +65,7 @@ def memdump(samples=10, file=None):  # pragma: no cover
     calling :func:`sample_mem`, and in addition print
     used RSS memory after :func:`gc.collect`.
     """
-    say = partial(print, file=file)
-    if ps() is None:
-        say('- rss: (psutil not installed).')
-        return
-    prev, after_collect = _memdump(samples)
-    if prev:
-        say('- rss (sample):')
-        for mem in prev:
-            say(f'-    > {mem},')
-    say(f'- rss (end): {after_collect}.')
+    pass
 
 
 def sample(x, n, k=0):
@@ -107,13 +76,7 @@ def sample(x, n, k=0):
 
     ``k`` can be used as offset.
     """
-    j = len(x) // n
-    for _ in range(n):
-        try:
-            yield x[k]
-        except IndexError:
-            break
-        k += j
+    pass
 
 
 def hfloat(f, p=5):

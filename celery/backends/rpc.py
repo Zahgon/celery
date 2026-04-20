@@ -35,7 +35,7 @@ class BacklogLimitExceeded(Exception):
 
 
 def _on_after_fork_cleanup_backend(backend):
-    backend._after_fork()
+    pass
 
 
 class ResultConsumer(BaseResultConsumer):
@@ -126,10 +126,7 @@ class ResultConsumer(BaseResultConsumer):
             self._connection.close()
 
     def on_after_fork(self):
-        self._consumer = None
-        if self._connection is not None:
-            self._connection.collect()
-            self._connection = None
+        pass
 
     def consume_from(self, task_id):
         if self._consumer is None:
@@ -199,8 +196,7 @@ class RPCBackend(base.Backend, AsyncBackendMixin):
 
     def _after_fork(self):
         # clear state for child processes.
-        self._pending_results.clear()
-        self.result_consumer._after_fork()
+        pass
 
     def _create_exchange(self, name, type='direct', delivery_mode=2):
         # uses direct to queue routing (anon exchange).
@@ -398,4 +394,4 @@ class RPCBackend(base.Backend, AsyncBackendMixin):
     @cached_property
     def oid(self):
         # cached here is the app thread OID: name of queue we receive results on.
-        return self.app.thread_oid
+        pass

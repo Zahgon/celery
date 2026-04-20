@@ -93,21 +93,15 @@ class LocalTimezone(tzinfo):
         return self.DSTOFFSET if self._isdst(dt) else self.STDOFFSET
 
     def dst(self, dt: datetime) -> timedelta:
-        return self.DSTDIFF if self._isdst(dt) else ZERO
+        pass
 
     def tzname(self, dt: datetime) -> str:
-        return _time.tzname[self._isdst(dt)]
+        pass
 
     def fromutc(self, dt: datetime) -> datetime:
         # The base tzinfo class no longer implements a DST
         # offset aware .fromutc() in Python 3 (Issue #2306).
-        offset = int(self.utcoffset(dt).seconds / 60.0)
-        try:
-            tz = self._offset_cache[offset]
-        except KeyError:
-            tz = self._offset_cache[offset] = datetime_timezone(
-                timedelta(minutes=offset))
-        return tz.fromutc(dt.replace(tzinfo=tz))
+        pass
 
     def _isdst(self, dt: datetime) -> bool:
         tt = (dt.year, dt.month, dt.day,
@@ -143,10 +137,7 @@ class _Zone:
 
     def to_system(self, dt: datetime) -> datetime:
         """Converts a datetime to the system timezone."""
-
-        # tz=None is a special case since Python 3.3, and will
-        # convert to the current local timezone (Issue #2306).
-        return dt.astimezone(tz=None)
+        pass
 
     def to_local_fallback(self, dt: datetime) -> datetime:
         """Converts a datetime to the local timezone, or the system timezone."""
@@ -175,7 +166,7 @@ class _Zone:
     @cached_property
     def utc(self) -> tzinfo:
         """Return UTC timezone created with ZoneInfo."""
-        return self.get_timezone('UTC')
+        pass
 
 
 timezone = _Zone()
@@ -423,11 +414,7 @@ class ffwd:
         return ret + timedelta(days=self.days)
 
     def _fields(self, **extra: Any) -> dict[str, Any]:
-        return dictfilter({
-            'year': self.year, 'month': self.month, 'day': self.day,
-            'hour': self.hour, 'minute': self.minute,
-            'second': self.second, 'microsecond': self.microsecond,
-        }, **extra)
+        pass
 
 
 def utcoffset(

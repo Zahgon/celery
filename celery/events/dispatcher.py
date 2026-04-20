@@ -107,11 +107,7 @@ class EventDispatcher:
             callback()
 
     def disable(self):
-        if self.enabled:
-            self.enabled = False
-            self.close()
-            for callback in self.on_disabled:
-                callback()
+        pass
 
     def publish(self, type, fields, producer,
                 blind=False, Event=Event, **kwargs):
@@ -222,8 +218,8 @@ class EventDispatcher:
         self.producer = None
 
     def _get_publisher(self):
-        return self.producer
+        pass
 
     def _set_publisher(self, producer):
-        self.producer = producer
+        pass
     publisher = property(_get_publisher, _set_publisher)  # XXX compat

@@ -48,7 +48,7 @@ class Certificate:
     def get_pubkey(self) -> (
         DSAPublicKey | EllipticCurvePublicKey | Ed448PublicKey | Ed25519PublicKey | RSAPublicKey
     ):
-        return self._cert.public_key()
+        pass
 
     def get_serial_number(self) -> int:
         """Return the serial number in the certificate."""
@@ -64,13 +64,7 @@ class Certificate:
 
     def verify(self, data: bytes, signature: bytes, digest: HashAlgorithm | Prehashed) -> None:
         """Verify signature for string containing data."""
-        with reraise_errors('Bad signature: {0!r}'):
-
-            pad = padding.PSS(
-                mgf=padding.MGF1(digest),
-                salt_length=padding.PSS.MAX_LENGTH)
-
-            self.get_pubkey().verify(signature, ensure_bytes(data), pad, digest)
+        pass
 
 
 class CertStore:
@@ -81,7 +75,7 @@ class CertStore:
 
     def itercerts(self) -> Iterator[Certificate]:
         """Return certificate iterator."""
-        yield from self._certs.values()
+        pass
 
     def __getitem__(self, id: str) -> Certificate:
         """Get certificate by id."""

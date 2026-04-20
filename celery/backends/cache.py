@@ -26,32 +26,13 @@ _DUMMY_CLIENT_CACHE = LRUCache(limit=5000)
 
 
 def import_best_memcache():
-    if _imp[0] is None:
-        is_pylibmc, memcache_key_t = False, bytes_to_str
-        try:
-            import pylibmc as memcache
-            is_pylibmc = True
-        except ImportError:
-            try:
-                import memcache
-            except ImportError:
-                raise ImproperlyConfigured(REQUIRES_BACKEND)
-        _imp[0] = (is_pylibmc, memcache, memcache_key_t)
-    return _imp[0]
+    pass
 
 
 def get_best_memcache(*args, **kwargs):
     # pylint: disable=unpacking-non-sequence
     #   This is most definitely a sequence, but pylint thinks it's not.
-    is_pylibmc, memcache, key_t = import_best_memcache()
-    Client = _Client = memcache.Client
-
-    if not is_pylibmc:
-        def Client(*args, **kwargs):  # noqa: F811
-            kwargs.pop('behaviors', None)
-            return _Client(*args, **kwargs)
-
-    return Client, key_t
+    pass
 
 
 class DummyClient:
@@ -67,7 +48,7 @@ class DummyClient:
         return {k: cache[k] for k in keys if k in cache}
 
     def set(self, key, value, *args, **kwargs):
-        self.cache[key] = value
+        pass
 
     def delete(self, key, *args, **kwargs):
         self.cache.pop(key, None)
@@ -123,16 +104,13 @@ class CacheBackend(KeyValueStoreBackend):
         return self.client.get_multi(keys)
 
     def set(self, key, value):
-        return self.client.set(key, value, self.expires)
+        pass
 
     def delete(self, key):
         return self.client.delete(key)
 
     def _apply_chord_incr(self, header_result_args, body, **kwargs):
-        chord_key = self.get_key_for_chord(header_result_args[0])
-        self.client.set(chord_key, 0, time=self.expires)
-        return super()._apply_chord_incr(
-            header_result_args, body, **kwargs)
+        pass
 
     def incr(self, key):
         return self.client.incr(key)

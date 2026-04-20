@@ -211,75 +211,11 @@ class TraceInfo:
 
     def handle_retry(self, task, req, store_errors=True, **kwargs):
         """Handle retry exception."""
-        # the exception raised is the Retry semi-predicate,
-        # and it's exc' attribute is the original exception raised (if any).
-        type_, _, tb = sys.exc_info()
-        einfo = None
-        try:
-            reason = self.retval
-            einfo = ExceptionInfo((type_, reason, tb))
-            if store_errors:
-                task.backend.mark_as_retry(
-                    req.id, reason.exc, einfo.traceback, request=req,
-                )
-            task.on_retry(reason.exc, req.id, req.args, req.kwargs, einfo)
-            signals.task_retry.send(sender=task, request=req,
-                                    reason=reason, einfo=einfo)
-            info(LOG_RETRY, {
-                'id': req.id,
-                'name': get_task_name(req, task.name),
-                'exc': str(reason),
-            })
-            # MEMORY LEAK FIX: Clear traceback frames to prevent memory retention (Issue #8882)
-            traceback_clear(einfo.exception)
-            return einfo
-        finally:
-            # MEMORY LEAK FIX: Clean up direct traceback reference to prevent
-            # retention of frame objects and their local variables (Issue #8882)
-            if tb is not None:
-                del tb
+        pass
 
     def handle_failure(self, task, req, store_errors=True, call_errbacks=True):
         """Handle exception."""
-        orig_exc = self.retval
-        tb_ref = None
-
-        try:
-            exc = get_pickleable_exception(orig_exc)
-            if exc.__traceback__ is None:
-                # `get_pickleable_exception` may have created a new exception without
-                # a traceback.
-                _, _, tb_ref = sys.exc_info()
-                exc.__traceback__ = tb_ref
-
-            exc_type = get_pickleable_etype(type(orig_exc))
-
-            # make sure we only send pickleable exceptions back to parent.
-            einfo = ExceptionInfo(exc_info=(exc_type, exc, exc.__traceback__))
-
-            task.backend.mark_as_failure(
-                req.id, exc, einfo.traceback,
-                request=req, store_result=store_errors,
-                call_errbacks=call_errbacks,
-            )
-
-            task.on_failure(exc, req.id, req.args, req.kwargs, einfo)
-            signals.task_failure.send(sender=task, task_id=req.id,
-                                      exception=exc, args=req.args,
-                                      kwargs=req.kwargs,
-                                      traceback=exc.__traceback__,
-                                      einfo=einfo)
-            self._log_error(task, req, einfo)
-            # MEMORY LEAK FIX: Clear traceback frames to prevent memory retention (Issue #8882)
-            traceback_clear(exc)
-            # Note: We return einfo, so we can't clean it up here
-            # The calling function is responsible for cleanup
-            return einfo
-        finally:
-            # MEMORY LEAK FIX: Clean up any direct traceback references we may have created
-            # to prevent retention of frame objects and their local variables (Issue #8882)
-            if tb_ref is not None:
-                del tb_ref
+        pass
 
     def _log_error(self, task, req, einfo):
         eobj = einfo.exception = get_pickled_exception(einfo.exception)

@@ -41,21 +41,17 @@ class TaskRegistry(dict):
         Raises:
             celery.exceptions.NotRegistered: if the task is not registered.
         """
-        try:
-            self.pop(getattr(name, 'name', name))
-        except KeyError:
-            raise self.NotRegistered(name)
+        pass
 
     # -- these methods are irrelevant now and will be removed in 4.0
     def regular(self):
-        return self.filter_types('regular')
+        pass
 
     def periodic(self):
-        return self.filter_types('periodic')
+        pass
 
     def filter_types(self, type):
-        return {name: task for name, task in self.items()
-                if getattr(task, 'type', 'regular') == type}
+        pass
 
 
 def _unpickle_task(name):

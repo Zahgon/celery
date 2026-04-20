@@ -60,11 +60,7 @@ def format_opt(opt, value):
 
 
 def _kwargs_to_command_line(kwargs):
-    return {
-        ('--{}'.format(k.replace('_', '-'))
-         if len(k) > 1 else f'-{k}'): f'{v}'
-        for k, v in kwargs.items()
-    }
+    pass
 
 
 class NamespacedOptionParser:
@@ -233,48 +229,38 @@ class Node:
         return shlex.split(from_utf8(args), posix=not IS_WINDOWS)
 
     def getopt(self, *alt):
-        for opt in alt:
-            try:
-                return self.options[opt]
-            except KeyError:
-                pass
-        raise KeyError(alt[0])
+        pass
 
     def __repr__(self):
         return f'<{type(self).__name__}: {self.name}>'
 
     @cached_property
     def pidfile(self):
-        return self.expander(self.getopt('--pidfile', '-p'))
+        pass
 
     @cached_property
     def logfile(self):
-        return self.expander(self.getopt('--logfile', '-f'))
+        pass
 
     @property
     def pid(self):
-        if self._pid is not None:
-            return self._pid
-        try:
-            return Pidfile(self.pidfile).read_pid()
-        except ValueError:
-            pass
+        pass
 
     @pid.setter
     def pid(self, value):
-        self._pid = value
+        pass
 
     @cached_property
     def executable(self):
-        return self.options['--executable']
+        pass
 
     @cached_property
     def argv_with_executable(self):
-        return (self.executable,) + self.argv
+        pass
 
     @classmethod
     def from_kwargs(cls, name, **kwargs):
-        return cls(name, options=_kwargs_to_command_line(kwargs))
+        pass
 
 
 def maybe_call(fun, *args, **kwargs):
@@ -432,10 +418,7 @@ class Cluster(UserList):
         retvals = []
 
         def restart_on_down(node):
-            maybe_call(self.on_node_restart, node)
-            retval = self._start_node(node)
-            maybe_call(self.on_node_status, node, retval)
-            retvals.append(retval)
+            pass
 
         self._stop_nodes(retry=2, on_down=restart_on_down, sig=sig)
         return retvals
@@ -444,7 +427,7 @@ class Cluster(UserList):
         return self._stop_nodes(retry=retry, on_down=callback, sig=sig)
 
     def stopwait(self, retry=2, callback=None, sig=signal.SIGTERM):
-        return self._stop_nodes(retry=retry, on_down=callback, sig=sig)
+        pass
 
     def _stop_nodes(self, retry=None, on_down=None, sig=signal.SIGTERM):
         on_down = on_down if on_down is not None else self.on_node_down
@@ -503,4 +486,4 @@ class Cluster(UserList):
 
     @property
     def data(self):
-        return self.nodes
+        pass

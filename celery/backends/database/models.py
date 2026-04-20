@@ -21,7 +21,7 @@ def _get_utc_now():
     to ensure the timestamp is evaluated at INSERT/UPDATE time,
     not at module import time.
     """
-    return datetime.now(timezone.utc)
+    pass
 
 
 class Task(ResultModelBase):

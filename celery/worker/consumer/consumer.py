@@ -303,41 +303,16 @@ class Consumer:
             abs(index) * self.prefetch_multiplier)
 
     def _limit_move_to_pool(self, request):
-        task_reserved(request)
-        self.on_task_request(request)
+        pass
 
     def _schedule_bucket_request(self, bucket):
-        while True:
-            try:
-                request, tokens = bucket.pop()
-            except IndexError:
-                # no request, break
-                break
-
-            if bucket.can_consume(tokens):
-                self._limit_move_to_pool(request)
-                continue
-            else:
-                # requeue to head, keep the order.
-                bucket.contents.appendleft((request, tokens))
-
-                pri = self._limit_order = (self._limit_order + 1) % 10
-                hold = bucket.expected_time(tokens)
-                self.timer.call_after(
-                    hold, self._schedule_bucket_request, (bucket,),
-                    priority=pri,
-                )
-                # no tokens, break
-                break
+        pass
 
     def _limit_task(self, request, bucket, tokens):
-        bucket.add((request, tokens))
-        return self._schedule_bucket_request(bucket)
+        pass
 
     def _limit_post_eta(self, request, bucket, tokens):
-        self.qos.decrement_eventually()
-        bucket.add((request, tokens))
-        return self._schedule_bucket_request(bucket)
+        pass
 
     def start(self):
         blueprint = self.blueprint
@@ -541,15 +516,7 @@ class Consumer:
         # Callback called for each retry while the connection
         # can't be established.
         def _error_handler(exc, interval, next_step=CONNECTION_RETRY_STEP):
-            if getattr(conn, 'alt', None) and interval == 0:
-                next_step = CONNECTION_FAILOVER
-            elif interval > 0:
-                self.broker_connection_retry_attempt += 1
-            next_step = next_step.format(
-                when=humanize_seconds(interval, 'in', ' '),
-                retries=self.broker_connection_retry_attempt,
-                max_retries=self.app.conf.broker_connection_max_retries)
-            error(CONNECTION_ERROR, conn.as_uri(), exc, next_step)
+            pass
 
         # Remember that the connection is lazy, it won't establish
         # until needed.
@@ -593,45 +560,21 @@ class Consumer:
         return conn
 
     def _flush_events(self):
-        if self.event_dispatcher:
-            self.event_dispatcher.flush()
+        pass
 
     def on_send_event_buffered(self):
-        if self.hub:
-            self.hub._ready.add(self._flush_events)
+        pass
 
     def add_task_queue(self, queue, exchange=None, exchange_type=None,
                        routing_key=None, **options):
-        cset = self.task_consumer
-        queues = self.app.amqp.queues
-        # Must use in' here, as __missing__ will automatically
-        # create queues when :setting:`task_create_missing_queues` is enabled.
-        # (Issue #1079)
-        if queue in queues:
-            q = queues[queue]
-        else:
-            exchange = queue if exchange is None else exchange
-            exchange_type = ('direct' if exchange_type is None
-                             else exchange_type)
-            q = queues.select_add(queue,
-                                  exchange=exchange,
-                                  exchange_type=exchange_type,
-                                  routing_key=routing_key, **options)
-        if not cset.consuming_from(queue):
-            cset.add_queue(q)
-            cset.consume()
-            info('Started consuming from %s', queue)
+        pass
 
     def cancel_task_queue(self, queue):
-        info('Canceling queue %s', queue)
-        self.app.amqp.queues.deselect(queue)
-        self.task_consumer.cancel_by_queue(queue)
+        pass
 
     def apply_eta_task(self, task):
         """Method called by the timer to apply a task with an ETA/countdown."""
-        task_reserved(task)
-        self.on_task_request(task)
-        self.qos.decrement_eventually()
+        pass
 
     def _message_report(self, body, message):
         return MESSAGE_REPORT.format(dump_body(message, body),
@@ -702,88 +645,20 @@ class Consumer:
         def on_task_received(message):
             # payload will only be set for v1 protocol, since v2
             # will defer deserializing the message body to the pool.
-            payload = None
-            try:
-                type_ = message.headers['task']  # protocol v2
-            except TypeError:
-                return on_unknown_message(None, message)
-            except KeyError:
-                try:
-                    payload = message.decode()
-                except Exception as exc:  # pylint: disable=broad-except
-                    return self.on_decode_error(message, exc)
-                try:
-                    type_, payload = payload['task'], payload  # protocol v1
-                except (TypeError, KeyError):
-                    return on_unknown_message(payload, message)
-            try:
-                strategy = strategies[type_]
-            except KeyError as exc:
-                return on_unknown_task(None, message, exc)
-            else:
-                try:
-                    ack_log_error_promise = promise(
-                        call_soon,
-                        (message.ack_log_error,),
-                        on_error=self._restore_prefetch_count_after_connection_restart,
-                    )
-                    reject_log_error_promise = promise(
-                        call_soon,
-                        (message.reject_log_error,),
-                        on_error=self._restore_prefetch_count_after_connection_restart,
-                    )
-
-                    if (
-                        not self._maximum_prefetch_restored
-                        and self.restart_count > 0
-                        and self._new_prefetch_count <= self.max_prefetch_count
-                    ):
-                        ack_log_error_promise.then(self._restore_prefetch_count_after_connection_restart,
-                                                   on_error=self._restore_prefetch_count_after_connection_restart)
-                        reject_log_error_promise.then(self._restore_prefetch_count_after_connection_restart,
-                                                      on_error=self._restore_prefetch_count_after_connection_restart)
-
-                    strategy(
-                        message, payload,
-                        ack_log_error_promise,
-                        reject_log_error_promise,
-                        callbacks,
-                    )
-                except (InvalidTaskError, ContentDisallowed) as exc:
-                    return on_invalid_task(payload, message, exc)
-                except DecodeError as exc:
-                    return self.on_decode_error(message, exc)
+            pass
 
         return on_task_received
 
     def _restore_prefetch_count_after_connection_restart(self, p, *args):
-        with self.qos._mutex:
-            if any((
-                not self.app.conf.worker_enable_prefetch_count_reduction,
-                self._maximum_prefetch_restored,
-            )):
-                return
-
-            new_prefetch_count = min(self.max_prefetch_count, self._new_prefetch_count)
-            self.qos.value = self.initial_prefetch_count = new_prefetch_count
-            self.qos.set(self.qos.value)
-
-            already_restored = self._maximum_prefetch_restored
-            self._maximum_prefetch_restored = new_prefetch_count == self.max_prefetch_count
-
-            if already_restored is False and self._maximum_prefetch_restored is True:
-                logger.info(
-                    "Resuming normal operations following a restart.\n"
-                    f"Prefetch count has been restored to the maximum of {self.max_prefetch_count}"
-                )
+        pass
 
     @property
     def max_prefetch_count(self):
-        return self.pool.num_processes * self.prefetch_multiplier
+        pass
 
     @property
     def _new_prefetch_count(self):
-        return self.qos.value + self.prefetch_multiplier
+        pass
 
     def __repr__(self):
         """``repr(self)``."""
@@ -799,30 +674,7 @@ class Consumer:
 
         Does not cancel successful tasks, even if they have not been acknowledged yet.
         """
-
-        def should_cancel(request):
-            if not request.task.acks_late:
-                # Task does not require late acknowledgment, cancel it.
-                return True
-
-            if not request.acknowledged:
-                # Task is late acknowledged, but it has not been acknowledged yet, cancel it.
-                if request.id in successful_requests:
-                    # Unless it was successful, in which case we don't want to cancel it.
-                    return False
-                return True
-
-            # Task is late acknowledged, but it has already been acknowledged.
-            return False  # Do not cancel and allow it to gracefully finish as it has already been acknowledged.
-
-        requests_to_cancel = tuple(filter(should_cancel, active_requests))
-
-        if requests_to_cancel:
-            for request in requests_to_cancel:
-                # For acks_late tasks, don't emit RETRY signal since broker will handle redelivery
-                # For non-acks_late tasks, emit RETRY signal as usual
-                emit_retry = not request.task.acks_late
-                request.cancel(self.pool, emit_retry=emit_retry)
+        pass
 
 
 class Evloop(bootsteps.StartStopStep):

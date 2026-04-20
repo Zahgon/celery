@@ -112,7 +112,7 @@ class DatabaseBackend(BaseBackend):
 
     @property
     def extended_result(self):
-        return self.app.conf.find_value_for_key('extended', 'result')
+        pass
 
     def exception_safe_to_retry(self, exc):
         return isinstance(exc, RETRYABLE_DB_ERRORS)
@@ -135,37 +135,12 @@ class DatabaseBackend(BaseBackend):
     def _store_result(self, task_id, result, state, traceback=None,
                       request=None, **kwargs):
         """Store return value and state of an executed task."""
-        session = self.ResultSession()
-        with session_cleanup(session):
-            task = list(session.query(self.task_cls).filter(self.task_cls.task_id == task_id))
-            task = task and task[0]
-            if not task:
-                task = self.task_cls(task_id)
-                task.task_id = task_id
-                session.add(task)
-                session.flush()
-
-            self._update_result(task, result, state, traceback=traceback, request=request)
-            session.commit()
+        pass
 
     def _update_result(self, task, result, state, traceback=None,
                        request=None):
 
-        meta = self._get_result_meta(result=result, state=state,
-                                     traceback=traceback, request=request,
-                                     format_date=False, encode=True)
-
-        # Exclude the primary key id and task_id columns
-        # as we should not set it None
-        columns = [column.name for column in self.task_cls.__table__.columns
-                   if column.name not in {'id', 'task_id'}]
-
-        # Iterate through the columns name of the table
-        # to set the value from meta.
-        # If the value is not present in meta, set None
-        for column in columns:
-            value = meta.get(column)
-            setattr(task, column, value)
+        pass
 
     def _get_task_meta_for(self, task_id):
         """Get task meta-data for a task by id."""
@@ -197,50 +172,23 @@ class DatabaseBackend(BaseBackend):
 
     def _save_group(self, group_id, result):
         """Store the result of an executed group."""
-        session = self.ResultSession()
-        with session_cleanup(session):
-            group = self.taskset_cls(group_id, result)
-            session.add(group)
-            session.flush()
-            session.commit()
-            return result
+        pass
 
     def _restore_group(self, group_id):
         """Get meta-data for group by id."""
-        session = self.ResultSession()
-        with session_cleanup(session):
-            group = session.query(self.taskset_cls).filter(
-                self.taskset_cls.taskset_id == group_id).first()
-            if group:
-                return group.to_dict()
+        pass
 
     def _delete_group(self, group_id):
         """Delete meta-data for group by id."""
-        session = self.ResultSession()
-        with session_cleanup(session):
-            session.query(self.taskset_cls).filter(
-                self.taskset_cls.taskset_id == group_id).delete()
-            session.flush()
-            session.commit()
+        pass
 
     def _forget(self, task_id):
         """Forget about result."""
-        session = self.ResultSession()
-        with session_cleanup(session):
-            session.query(self.task_cls).filter(self.task_cls.task_id == task_id).delete()
-            session.commit()
+        pass
 
     def cleanup(self):
         """Delete expired meta-data."""
-        session = self.ResultSession()
-        expires = self.expires
-        now = self.app.now()
-        with session_cleanup(session):
-            session.query(self.task_cls).filter(
-                self.task_cls.date_done < (now - expires)).delete()
-            session.query(self.taskset_cls).filter(
-                self.taskset_cls.date_done < (now - expires)).delete()
-            session.commit()
+        pass
 
     def __reduce__(self, args=(), kwargs=None):
         kwargs = {} if not kwargs else kwargs

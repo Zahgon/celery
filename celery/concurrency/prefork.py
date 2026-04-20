@@ -44,42 +44,7 @@ def process_initializer(app, hostname):
     Initialize the child pool process to ensure the correct
     app instance is used and things like logging works.
     """
-    # Each running worker gets SIGKILL by OS when main process exits.
-    platforms.set_pdeathsig('SIGKILL')
-    _set_task_join_will_block(True)
-    platforms.signals.reset(*WORKER_SIGRESET)
-    platforms.signals.ignore(*WORKER_SIGIGNORE)
-    platforms.set_mp_process_title('celeryd', hostname=hostname)
-    # This is for Windows and other platforms not supporting
-    # fork().  Note that init_worker makes sure it's only
-    # run once per process.
-    app.loader.init_worker()
-    app.loader.init_worker_process()
-    logfile = os.environ.get('CELERY_LOG_FILE') or None
-    if logfile and '%i' in logfile.lower():
-        # logfile path will differ so need to set up logging again.
-        app.log.already_setup = False
-    app.log.setup(int(os.environ.get('CELERY_LOG_LEVEL', 0) or 0),
-                  logfile,
-                  bool(os.environ.get('CELERY_LOG_REDIRECT', False)),
-                  str(os.environ.get('CELERY_LOG_REDIRECT_LEVEL')),
-                  hostname=hostname)
-    if os.environ.get('FORKED_BY_MULTIPROCESSING'):
-        # pool did execv after fork
-        trace.setup_worker_optimizations(app, hostname)
-    else:
-        app.set_current()
-        set_default_app(app)
-        app.finalize()
-        trace._tasks = app._tasks  # enables fast_trace_task optimization.
-    # rebuild execution handler for all tasks.
-    from celery.app.trace import build_tracer
-    for name, task in app.tasks.items():
-        task.__trace__ = build_tracer(name, task, app.loader, hostname,
-                                      app=app)
-    from celery.worker import state as worker_state
-    worker_state.reset_state()
-    signals.worker_process_init.send(sender=None)
+    pass
 
 
 def process_destructor(pid, exitcode):
@@ -87,9 +52,7 @@ def process_destructor(pid, exitcode):
 
     Dispatch the :signal:`worker_process_shutdown` signal.
     """
-    signals.worker_process_shutdown.send(
-        sender=None, pid=pid, exitcode=exitcode,
-    )
+    pass
 
 
 class TaskPool(BasePool):
@@ -152,18 +115,7 @@ class TaskPool(BasePool):
                 shutdown_event = threading.Event()
 
                 def fire_timers_loop():
-                    while not shutdown_event.is_set():
-                        try:
-                            hub.fire_timers()
-                        except Exception:
-                            logger.warning(
-                                "Exception in timer thread during prefork on_stop()",
-                                exc_info=True,
-                            )
-                        # 0.5 seconds was chosen as a balance between joining quickly
-                        # after the pool join is complete and sleeping long enough to
-                        # avoid excessive CPU usage.
-                        time.sleep(0.5)
+                    pass
 
                 timer_thread = threading.Thread(
                     target=fire_timers_loop,
@@ -213,4 +165,4 @@ class TaskPool(BasePool):
 
     @property
     def num_processes(self):
-        return self._pool._processes
+        pass

@@ -37,9 +37,7 @@ class State:
 
     @property
     def strtotal(self):
-        if not self.total_apx:
-            return '?'
-        return str(self.total_apx)
+        pass
 
     def __repr__(self):
         if self.filtered:
@@ -89,10 +87,7 @@ def migrate_task(producer, body_, message, queues=None):
 def filter_callback(callback, tasks):
 
     def filtered(body, message):
-        if tasks and body['task'] not in tasks:
-            return
-
-        return callback(body, message)
+        pass
     return filtered
 
 
@@ -193,24 +188,7 @@ def move(predicate, connection=None, exchange=None, routing_key=None,
         state = State()
 
         def on_task(body, message):
-            ret = predicate(body, message)
-            if ret:
-                if transform:
-                    ret = transform(ret)
-                if isinstance(ret, Queue):
-                    maybe_declare(ret, conn.default_channel)
-                    ex, rk = ret.exchange.name, ret.routing_key
-                else:
-                    ex, rk = expand_dest(ret, exchange, routing_key)
-                republish(producer, message,
-                          exchange=ex, routing_key=rk)
-                message.ack()
-
-                state.filtered += 1
-                if callback:
-                    callback(state, body, message)
-                if limit and state.filtered >= limit:
-                    raise StopFiltering()
+            pass
 
         return start_filter(app, conn, on_task, consume_from=queues, **kwargs)
 
@@ -289,7 +267,7 @@ class Filterer:
             raise StopFiltering()
 
     def ack_message(self, body, message):
-        message.ack()
+        pass
 
     def create_consumer(self):
         return self.app.amqp.TaskConsumer(
@@ -382,7 +360,7 @@ def move_by_idmap(map, **kwargs):
         ...   queues=['hipri'])
     """
     def task_id_in_map(body, message):
-        return map.get(message.properties['correlation_id'])
+        pass
 
     # adding the limit means that we don't have to consume any more
     # when we've found everything.
@@ -401,7 +379,7 @@ def move_by_taskmap(map, **kwargs):
         ... })
     """
     def task_name_in_map(body, message):
-        return map.get(body['task'])  # <- name of task
+        pass
 
     return move(task_name_in_map, **kwargs)
 

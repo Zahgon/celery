@@ -378,7 +378,7 @@ DEFAULT_ATTRS = {'__file__', '__path__', '__doc__', '__all__'}
 # im_func is no longer available in Py3.
 # instead the unbound method itself can be used.
 def fun_of_method(method):
-    return method
+    pass
 
 
 def getappattr(path):
@@ -387,8 +387,7 @@ def getappattr(path):
     Example: ``getappattr('amqp.get_task_consumer')``.
 
     """
-    from celery import current_app
-    return current_app._rgetattr(path)
+    pass
 
 
 COMPAT_MODULES = {
@@ -444,11 +443,11 @@ class class_property:
         return self.__set.__get__(obj)(value)
 
     def setter(self, setter):
-        return self.__class__(self.__get, setter)
+        pass
 
 
 def reclassmethod(method):
-    return classmethod(fun_of_method(method))
+    pass
 
 
 class LazyModule(ModuleType):

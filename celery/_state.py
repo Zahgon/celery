@@ -155,28 +155,11 @@ def _get_active_apps():
 
 
 def _app_or_default(app=None):
-    if app is None:
-        return get_current_app()
-    return app
+    pass
 
 
 def _app_or_default_trace(app=None):  # pragma: no cover
-    from traceback import print_stack
-    try:
-        from billiard.process import current_process
-    except ImportError:
-        current_process = None
-    if app is None:
-        if getattr(_tls, 'current_app', None):
-            print('-- RETURNING TO CURRENT APP --')  # +
-            print_stack()
-            return _tls.current_app
-        if not current_process or current_process()._name == 'MainProcess':
-            raise Exception('DEFAULT APP')
-        print('-- RETURNING TO DEFAULT APP --')      # +
-        print_stack()
-        return default_app
-    return app
+    pass
 
 
 def enable_trace():

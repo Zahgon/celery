@@ -90,17 +90,15 @@ class DjangoFixup:
 
     @property
     def worker_fixup(self) -> "DjangoWorkerFixup":
-        if self._worker_fixup is None:
-            self._worker_fixup = DjangoWorkerFixup(self.app)
-        return self._worker_fixup
+        pass
 
     @worker_fixup.setter
     def worker_fixup(self, value: "DjangoWorkerFixup") -> None:
-        self._worker_fixup = value
+        pass
 
     def on_import_modules(self, **kwargs: Any) -> None:
         # call django.setup() before task modules are imported
-        self.worker_fixup.validate_models()
+        pass
 
     def on_worker_init(self, **kwargs: Any) -> None:
         worker: Optional["WorkController"] = kwargs.get("sender")
@@ -119,8 +117,7 @@ class DjangoFixup:
         return datetime.now(timezone.utc) if utc else self._now()
 
     def autodiscover_tasks(self) -> List[str]:
-        from django.apps import apps
-        return [config.name for config in apps.get_app_configs()]
+        pass
 
     @cached_property
     def _now(self) -> datetime:
@@ -144,14 +141,10 @@ class DjangoWorkerFixup:
         self.DatabaseError = symbol_by_name('django.db:DatabaseError')
 
     def django_setup(self) -> None:
-        import django
-        django.setup()
+        pass
 
     def validate_models(self) -> None:
-        from django.core.checks import run_checks
-        self.django_setup()
-        if not os.environ.get('CELERY_SKIP_CHECKS'):
-            run_checks()
+        pass
 
     def install(self) -> "DjangoWorkerFixup":
         signals.beat_embedded_init.connect(self.close_database)
@@ -165,42 +158,18 @@ class DjangoWorkerFixup:
     def on_worker_process_init(self, **kwargs: Any) -> None:
         # Child process must validate models again if on Windows,
         # or if they were started using execv.
-        if os.environ.get('FORKED_BY_MULTIPROCESSING'):
-            self.validate_models()
-
-        # close connections:
-        # the parent process may have established these,
-        # so need to close them.
-
-        # calling db.close() on some DB connections will cause
-        # the inherited DB conn to also get broken in the parent
-        # process so we need to remove it without triggering any
-        # network IO that close() might cause.
-        for c in self._db.connections.all():
-            if c and c.connection:
-                self._maybe_close_db_fd(c)
-
-        # use the _ version to avoid DB_REUSE preventing the conn.close() call
-        self._close_database()
-        self.close_cache()
+        pass
 
     def _maybe_close_db_fd(self, c: "BaseDatabaseWrapper") -> None:
-        try:
-            with c.wrap_database_errors:
-                _maybe_close_fd(c.connection)
-        except self.interface_errors:
-            pass
+        pass
 
     def on_task_prerun(self, sender: "Task", **kwargs: Any) -> None:
         """Called before every task."""
-        if not getattr(sender.request, 'is_eager', False):
-            self.close_database()
+        pass
 
     def on_task_postrun(self, sender: "Task", **kwargs: Any) -> None:
         # See https://groups.google.com/group/django-users/browse_thread/thread/78200863d0c07c6d/
-        if not getattr(sender.request, 'is_eager', False):
-            self.close_database()
-            self.close_cache()
+        pass
 
     def close_database(self, **kwargs: Any) -> None:
         if not self.db_reuse_max:

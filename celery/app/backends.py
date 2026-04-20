@@ -41,29 +41,9 @@ BACKEND_ALIASES = {
 def by_name(backend=None, loader=None,
             extension_namespace='celery.result_backends'):
     """Get backend class by name/alias."""
-    backend = backend or 'disabled'
-    loader = loader or current_app.loader
-    aliases = dict(BACKEND_ALIASES, **loader.override_backends)
-    aliases.update(load_extension_class_names(extension_namespace))
-    try:
-        cls = symbol_by_name(backend, aliases)
-    except ValueError as exc:
-        reraise(ImproperlyConfigured, ImproperlyConfigured(
-            UNKNOWN_BACKEND.strip().format(backend, exc)), sys.exc_info()[2])
-    if isinstance(cls, types.ModuleType):
-        raise ImproperlyConfigured(UNKNOWN_BACKEND.strip().format(
-            backend, 'is a Python module, not a backend class.'))
-    return cls
+    pass
 
 
 def by_url(backend=None, loader=None):
     """Get backend class by URL."""
-    url = None
-    if backend and '://' in backend:
-        url = backend
-        scheme, _, _ = url.partition('://')
-        if '+' in scheme:
-            backend, url = url.split('+', 1)
-        else:
-            backend = scheme
-    return by_name(backend, loader), url
+    pass

@@ -73,36 +73,7 @@ class AzureBlockBlobBackend(KeyValueStoreBackend):
         the container is created if it doesn't yet exist.
 
         """
-        if (
-            "DefaultAzureCredential" in self._connection_string or
-            "ManagedIdentityCredential" in self._connection_string
-        ):
-            # Leveraging the work that Kombu already did for us
-            credential_, url = AzureStorageQueuesTransport.parse_uri(
-                self._connection_string
-            )
-            client = BlobServiceClient(
-                account_url=url,
-                credential=credential_,
-                connection_timeout=self._connection_timeout,
-                read_timeout=self._read_timeout,
-            )
-        else:
-            client = BlobServiceClient.from_connection_string(
-                self._connection_string,
-                connection_timeout=self._connection_timeout,
-                read_timeout=self._read_timeout,
-            )
-
-        try:
-            client.create_container(name=self._container_name)
-            msg = f"Container created with name {self._container_name}."
-        except ResourceExistsError:
-            msg = f"Container with name {self._container_name} already." \
-                "exists. This will not be created."
-        LOGGER.info(msg)
-
-        return client
+        pass
 
     def get(self, key):
         """Read the value stored at the given key.
@@ -131,15 +102,7 @@ class AzureBlockBlobBackend(KeyValueStoreBackend):
               value: The value to store.
 
         """
-        key = bytes_to_str(key)
-        LOGGER.debug(f"Creating azure blob at {self._container_name}/{key}")
-
-        blob_client = self._blob_service_client.get_blob_client(
-            container=self._container_name,
-            blob=f'{self.base_path}{key}',
-        )
-
-        blob_client.upload_blob(value, overwrite=True)
+        pass
 
     def mget(self, keys):
         """Read all the values for the provided keys.

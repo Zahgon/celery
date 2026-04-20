@@ -102,10 +102,7 @@ class CouchbaseBackend(KeyValueStoreBackend):
 
     def set(self, key, value):
         # Since 4.0.0 value is JSONType in couchbase lib, so parameter format isn't needed
-        if FMT_AUTO is not None:
-            self.connection.upsert(key, value, ttl=self.expires, format=FMT_AUTO)
-        else:
-            self.connection.upsert(key, value, ttl=self.expires)
+        pass
 
     def mget(self, keys):
         return self.connection.get_multi(keys)

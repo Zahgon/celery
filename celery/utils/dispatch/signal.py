@@ -102,10 +102,7 @@ class Signal:  # pragma: no cover
         self._dead_receivers = False
 
     def _connect_proxy(self, fun, sender, weak, dispatch_uid):
-        return self.connect(
-            fun, sender=sender._get_current_object(),
-            weak=weak, dispatch_uid=dispatch_uid,
-        )
+        pass
 
     def connect(self, *args, **kwargs):
         """Connect receiver to sender for signal.
@@ -152,16 +149,7 @@ class Signal:  # pragma: no cover
                 def _retry_receiver(retry_fun):
 
                     def _try_receiver_over_time(*args, **kwargs):
-                        def on_error(exc, intervals, retries):
-                            interval = next(intervals)
-                            err_msg = RECEIVER_RETRY_ERROR % \
-                                {'receiver': retry_fun,
-                                 'when': humanize_seconds(interval, 'in', ' ')}
-                            logger.error(err_msg)
-                            return interval
-
-                        return retry_over_time(retry_fun, Exception, args,
-                                               kwargs, on_error)
+                        pass
 
                     return _try_receiver_over_time
 
@@ -233,27 +221,10 @@ class Signal:  # pragma: no cover
             dispatch_uid (Hashable): The unique identifier of the receiver
                 to disconnect.
         """
-        if weak is not None:
-            warnings.warn(
-                'Passing `weak` to disconnect has no effect.',
-                CDeprecationWarning, stacklevel=2)
-
-        lookup_key = _make_lookup_key(receiver, sender, dispatch_uid)
-
-        disconnected = False
-        with self.lock:
-            self._clear_dead_receivers()
-            for index in range(len(self.receivers)):
-                (r_key, _) = self.receivers[index]
-                if r_key == lookup_key:
-                    disconnected = True
-                    del self.receivers[index]
-                    break
-            self.sender_receivers_cache.clear()
-        return disconnected
+        pass
 
     def has_listeners(self, sender=None):
-        return bool(self._live_receivers(sender))
+        pass
 
     def send(self, sender, **named):
         """Send signal from sender to all connected receivers.
@@ -341,13 +312,7 @@ class Signal:  # pragma: no cover
 
     def _remove_receiver(self, receiver=None):
         """Remove dead receivers from connections."""
-        # Mark that the self..receivers first has dead weakrefs. If so,
-        # we will clean those up in connect, disconnect and _live_receivers
-        # while holding self.lock.  Note that doing the cleanup here isn't a
-        # good idea, _remove_receiver() will be called as a side effect of
-        # garbage collection, and so the call can happen wh ile we are already
-        # holding self.lock.
-        self._dead_receivers = True
+        pass
 
     def __repr__(self):
         """``repr(signal)``."""

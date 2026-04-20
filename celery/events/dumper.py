@@ -27,10 +27,7 @@ Trying again %s
 
 
 def humanize_type(type):
-    try:
-        return HUMAN_TYPES[type.lower()]
-    except KeyError:
-        return type.lower().replace('-', ' ')
+    pass
 
 
 class Dumper:
@@ -48,32 +45,10 @@ class Dumper:
             pass
 
     def on_event(self, ev):
-        timestamp = datetime.fromtimestamp(ev.pop('timestamp'), timezone.utc)
-        type = ev.pop('type').lower()
-        hostname = ev.pop('hostname')
-        if type.startswith('task-'):
-            uuid = ev.pop('uuid')
-            if type in ('task-received', 'task-sent'):
-                task = TASK_NAMES[uuid] = '{}({}) args={} kwargs={}' \
-                    .format(ev.pop('name'), uuid,
-                            ev.pop('args'),
-                            ev.pop('kwargs'))
-            else:
-                task = TASK_NAMES.get(uuid, '')
-            return self.format_task_event(hostname, timestamp,
-                                          type, task, ev)
-        fields = ', '.join(
-            f'{key}={ev[key]}' for key in sorted(ev)
-        )
-        sep = fields and ':' or ''
-        self.say(f'{hostname} [{timestamp}] {humanize_type(type)}{sep} {fields}')
+        pass
 
     def format_task_event(self, hostname, timestamp, type, task, event):
-        fields = ', '.join(
-            f'{key}={event[key]}' for key in sorted(event)
-        )
-        sep = fields and ':' or ''
-        self.say(f'{hostname} [{timestamp}] {humanize_type(type)}{sep} {task} {fields}')
+        pass
 
 
 def evdump(app=None, out=sys.stdout):
@@ -84,9 +59,7 @@ def evdump(app=None, out=sys.stdout):
     conn = app.connection_for_read().clone()
 
     def _error_handler(exc, interval):
-        dumper.say(CONNECTION_ERROR % (
-            conn.as_uri(), exc, humanize_seconds(interval, 'in', ' ')
-        ))
+        pass
 
     while 1:
         try:

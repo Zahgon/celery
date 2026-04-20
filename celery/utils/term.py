@@ -63,21 +63,10 @@ class colored:
         return f"{a}{b}"
 
     def _fold_no_color(self, a: Any, b: Any) -> str:
-        try:
-            A = a.no_color()
-        except AttributeError:
-            A = str(a)
-        try:
-            B = b.no_color()
-        except AttributeError:
-            B = str(b)
-
-        return f"{A}{B}"
+        pass
 
     def no_color(self) -> str:
-        if self.s:
-            return str(reduce(self._fold_no_color, self.s))
-        return ''
+        pass
 
     def embed(self) -> str:
         prefix = ''
@@ -95,16 +84,16 @@ class colored:
         return self.__class__(enabled=self.enabled, op=op, *s)
 
     def black(self, *s: object) -> colored:
-        return self.node(s, fg(30 + BLACK))
+        pass
 
     def red(self, *s: object) -> colored:
-        return self.node(s, fg(30 + RED))
+        pass
 
     def green(self, *s: object) -> colored:
-        return self.node(s, fg(30 + GREEN))
+        pass
 
     def yellow(self, *s: object) -> colored:
-        return self.node(s, fg(30 + YELLOW))
+        pass
 
     def blue(self, *s: object) -> colored:
         return self.node(s, fg(30 + BLUE))
@@ -116,46 +105,46 @@ class colored:
         return self.node(s, fg(30 + CYAN))
 
     def white(self, *s: object) -> colored:
-        return self.node(s, fg(30 + WHITE))
+        pass
 
     def __repr__(self) -> str:
         return repr(self.no_color())
 
     def bold(self, *s: object) -> colored:
-        return self.node(s, OP_SEQ % 1)
+        pass
 
     def underline(self, *s: object) -> colored:
-        return self.node(s, OP_SEQ % 4)
+        pass
 
     def blink(self, *s: object) -> colored:
-        return self.node(s, OP_SEQ % 5)
+        pass
 
     def reverse(self, *s: object) -> colored:
         return self.node(s, OP_SEQ % 7)
 
     def bright(self, *s: object) -> colored:
-        return self.node(s, OP_SEQ % 8)
+        pass
 
     def ired(self, *s: object) -> colored:
-        return self.node(s, fg(40 + RED))
+        pass
 
     def igreen(self, *s: object) -> colored:
-        return self.node(s, fg(40 + GREEN))
+        pass
 
     def iyellow(self, *s: object) -> colored:
-        return self.node(s, fg(40 + YELLOW))
+        pass
 
     def iblue(self, *s: colored) -> colored:
-        return self.node(s, fg(40 + BLUE))
+        pass
 
     def imagenta(self, *s: object) -> colored:
-        return self.node(s, fg(40 + MAGENTA))
+        pass
 
     def icyan(self, *s: object) -> colored:
-        return self.node(s, fg(40 + CYAN))
+        pass
 
     def iwhite(self, *s: object) -> colored:
-        return self.node(s, fg(40 + WHITE))
+        pass
 
     def reset(self, *s: object) -> colored:
         return self.node(s or ('',), RESET_SEQ)

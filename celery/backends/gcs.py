@@ -92,11 +92,7 @@ class GCSBackendBase(KeyValueStoreBackend):
             return None
 
     def set(self, key, value):
-        key = bytes_to_str(key)
-        blob = self._get_blob(key)
-        if self.ttl:
-            blob.custom_time = datetime.now(timezone.utc) + timedelta(seconds=self.ttl)
-        blob.upload_from_string(value, retry=self._retry_policy)
+        pass
 
     def delete(self, key):
         key = bytes_to_str(key)
@@ -195,17 +191,7 @@ class GCSBackend(GCSBackendBase):
     @property
     def firestore_client(self):
         """Returns a firestore client."""
-
-        # make sure it's thread-safe, as creating a new client is expensive
-        with self._firestore_lock:
-            if self._firestore_client and self._pid == getpid():
-                return self._firestore_client
-            # make sure each process gets its own connection after a fork
-            self._firestore_client = firestore.Client(
-                project=self.firestore_project
-            )
-            self._pid = getpid()
-        return self._firestore_client
+        pass
 
     def _is_firestore_ttl_policy_enabled(self):
         client = firestore_admin_v1.FirestoreAdminClient()
@@ -225,9 +211,7 @@ class GCSBackend(GCSBackendBase):
         }
 
     def _apply_chord_incr(self, header_result_args, body, **kwargs):
-        key = self.get_key_for_chord(header_result_args[0]).decode()
-        self._expire_chord_key(key, 86400)
-        return super()._apply_chord_incr(header_result_args, body, **kwargs)
+        pass
 
     def incr(self, key: bytes) -> int:
         doc = self._firestore_document(key)
@@ -344,9 +328,7 @@ class GCSBackend(GCSBackendBase):
         Firestore ttl data is typically deleted within 24 hours after its
         expiration date.
         """
-        val_expires = datetime.now(timezone.utc) + timedelta(seconds=expires)
-        doc = self._firestore_document(key)
-        doc.set({self._field_expires: val_expires}, merge=True)
+        pass
 
     def _firestore_document(self, key):
         return self.firestore_client.collection(

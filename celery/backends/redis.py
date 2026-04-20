@@ -86,35 +86,10 @@ class ResultConsumer(BaseResultConsumer):
         self.subscribed_to = set()
 
     def on_after_fork(self):
-        try:
-            self.backend.client.connection_pool.reset()
-            if self._pubsub is not None:
-                self._pubsub.close()
-        except KeyError as e:
-            logger.warning(str(e))
-        super().on_after_fork()
+        pass
 
     def _reconnect_pubsub(self):
-        self._pubsub = None
-        self.backend.client.connection_pool.reset()
-        # task state might have changed when the connection was down so we
-        # retrieve meta for all subscribed tasks before going into pubsub mode
-        if self.subscribed_to:
-            metas = self.backend.client.mget(self.subscribed_to)
-            metas = [meta for meta in metas if meta]
-            for meta in metas:
-                self.on_state_change(self._decode_result(meta), None)
-        self._pubsub = self.backend.client.pubsub(
-            ignore_subscribe_messages=True,
-        )
-        # subscribed_to maybe empty after on_state_change
-        if self.subscribed_to:
-            self._pubsub.subscribe(*self.subscribed_to)
-        else:
-            self._pubsub.connection = self._pubsub.connection_pool.get_connection()
-            # even if there is nothing to subscribe, we should not lose the callback after connecting.
-            # The on_connect callback will re-subscribe to any channels we previously subscribed to.
-            self._pubsub.connection.register_connect_callback(self._pubsub.on_connect)
+        pass
 
     def _reconnect(self):
         """Re-establish the Redis pub/sub connection with retry."""
@@ -460,12 +435,7 @@ class RedisBackend(BaseKeyValueStoreBackend, AsyncBackendMixin):
 
     @cached_property
     def retry_policy(self):
-        retry_policy = super().retry_policy
-        if "retry_policy" in self._transport_options:
-            retry_policy = retry_policy.copy()
-            retry_policy.update(self._transport_options['retry_policy'])
-
-        return retry_policy
+        pass
 
     def on_task_call(self, producer, task_id):
         if not task_join_will_block():
@@ -478,25 +448,13 @@ class RedisBackend(BaseKeyValueStoreBackend, AsyncBackendMixin):
         return self.client.mget(keys)
 
     def ensure(self, fun, args, **policy):
-        retry_policy = dict(self.retry_policy, **policy)
-        max_retries = retry_policy.get('max_retries')
-        return retry_over_time(
-            fun, self.connection_errors, args, {},
-            partial(self.on_connection_error, max_retries),
-            **retry_policy)
+        pass
 
     def on_connection_error(self, max_retries, exc, intervals, retries):
-        tts = next(intervals)
-        logger.error(
-            E_LOST.strip(),
-            retries, max_retries or 'Inf', humanize_seconds(tts, 'in '))
-        return tts
+        pass
 
     def set(self, key, value, **retry_policy):
-        if isinstance(value, str) and len(value) > self._MAX_STR_VALUE_SIZE:
-            raise BackendStoreError('value too large for Redis backend')
-
-        return self.ensure(self._set, (key, value), **retry_policy)
+        pass
 
     def _set(self, key, value):
         with self.client.pipeline() as pipe:
@@ -508,8 +466,7 @@ class RedisBackend(BaseKeyValueStoreBackend, AsyncBackendMixin):
             pipe.execute()
 
     def forget(self, task_id):
-        super().forget(task_id)
-        self.result_consumer.cancel_for(task_id)
+        pass
 
     def delete(self, key):
         self.client.delete(key)
@@ -526,15 +483,7 @@ class RedisBackend(BaseKeyValueStoreBackend, AsyncBackendMixin):
     def _unpack_chord_result(self, tup, decode,
                              EXCEPTION_STATES=states.EXCEPTION_STATES,
                              PROPAGATE_STATES=states.PROPAGATE_STATES):
-        _, tid, state, retval = decode(tup)
-        if state in EXCEPTION_STATES:
-            retval = self.exception_to_python(retval)
-        if state in PROPAGATE_STATES:
-            chord_error = _create_chord_error_with_cause(
-                message=f'Dependency {tid} raised {retval!r}', original_exc=retval
-            )
-            raise chord_error
-        return retval
+        pass
 
     def set_chord_size(self, group_id, chord_size):
         self.set(self.get_key_for_group(group_id, '.s'), chord_size)
@@ -553,11 +502,11 @@ class RedisBackend(BaseKeyValueStoreBackend, AsyncBackendMixin):
 
     @cached_property
     def _chord_zset(self):
-        return self._transport_options.get('result_chord_ordered', True)
+        pass
 
     @cached_property
     def _transport_options(self):
-        return self.app.conf.get('result_backend_transport_options', {})
+        pass
 
     def on_chord_part_return(self, request, state, result,
                              propagate=None, **kwargs):

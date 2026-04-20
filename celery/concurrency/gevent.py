@@ -53,21 +53,10 @@ class Timer(_timer.Timer):
         self._queue = set()
 
     def _enter(self, eta, priority, entry, **kwargs):
-        secs = max(eta - monotonic(), 0)
-        g = self._Greenlet.spawn_later(secs, entry)
-        self._queue.add(g)
-        g.link(self._entry_exit)
-        g.entry = entry
-        g.eta = eta
-        g.priority = priority
-        g.canceled = False
-        return g
+        pass
 
     def _entry_exit(self, g):
-        try:
-            g.kill()
-        finally:
-            self._queue.discard(g)
+        pass
 
     def clear(self):
         queue = self._queue
@@ -142,16 +131,12 @@ class TaskPool(base.BasePool):
 
     @property
     def num_processes(self):
-        return len(self._pool)
+        pass
 
     @staticmethod
     def _make_killable_target(target):
         def killable_target(*args, **kwargs):
-            from greenlet import GreenletExit
-            try:
-                return target(*args, **kwargs)
-            except GreenletExit:
-                return (False, None, None)
+            pass
 
         return killable_target
 
@@ -163,7 +148,7 @@ class TaskPool(base.BasePool):
 
     @staticmethod
     def _cleanup_after_job_finish(greenlet, pool_map, pid):
-        del pool_map[pid]
+        pass
 
 
 def _terminate(self, signal):

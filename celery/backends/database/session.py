@@ -23,7 +23,7 @@ PREPARE_MODELS_MAX_RETRIES = 10
 
 
 def _after_fork_cleanup_session(session):
-    session._after_fork()
+    pass
 
 
 class SessionManager:
@@ -39,7 +39,7 @@ class SessionManager:
             register_after_fork(self, _after_fork_cleanup_session)
 
     def _after_fork(self):
-        self.forked = True
+        pass
 
     def get_engine(self, dburi, **kwargs):
         if self.forked:

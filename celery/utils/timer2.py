@@ -121,22 +121,22 @@ class Timer(threading.Thread):
             return entry
 
     def enter(self, entry: Entry, eta: float, priority: Optional[int] = None) -> Entry:
-        return self._do_enter('enter_at', entry, eta, priority=priority)
+        pass
 
     def call_at(self, *args: Any, **kwargs: Any) -> Entry:
         return self._do_enter('call_at', *args, **kwargs)
 
     def enter_after(self, *args: Any, **kwargs: Any) -> Entry:
-        return self._do_enter('enter_after', *args, **kwargs)
+        pass
 
     def call_after(self, *args: Any, **kwargs: Any) -> Entry:
-        return self._do_enter('call_after', *args, **kwargs)
+        pass
 
     def call_repeatedly(self, *args: Any, **kwargs: Any) -> Entry:
         return self._do_enter('call_repeatedly', *args, **kwargs)
 
     def exit_after(self, secs: float, priority: int = 10) -> None:
-        self.call_after(secs, sys.exit, priority)
+        pass
 
     def cancel(self, tref: Entry) -> None:
         tref.cancel()
@@ -145,7 +145,7 @@ class Timer(threading.Thread):
         self.schedule.clear()
 
     def empty(self) -> bool:
-        return not len(self)
+        pass
 
     def __len__(self) -> int:
         return len(self.schedule)

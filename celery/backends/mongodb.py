@@ -182,18 +182,7 @@ class MongoBackend(BaseBackend):
     def _store_result(self, task_id, result, state,
                       traceback=None, request=None, **kwargs):
         """Store return value and state of an executed task."""
-        meta = self._get_result_meta(result=self.encode(result), state=state,
-                                     traceback=traceback, request=request,
-                                     format_date=False)
-        # Add the _id for mongodb
-        meta['_id'] = task_id
-
-        try:
-            self.collection.replace_one({'_id': task_id}, meta, upsert=True)
-        except InvalidDocument as exc:
-            raise EncodeError(exc)
-
-        return result
+        pass
 
     def _get_task_meta_for(self, task_id):
         """Get task meta-data for a task by id."""
@@ -233,30 +222,15 @@ class MongoBackend(BaseBackend):
 
     def _save_group(self, group_id, result):
         """Save the group result."""
-        meta = {
-            '_id': group_id,
-            'result': self.encode([i.id for i in result]),
-            'date_done': datetime.now(timezone.utc),
-        }
-        self.group_collection.replace_one({'_id': group_id}, meta, upsert=True)
-        return result
+        pass
 
     def _restore_group(self, group_id):
         """Get the result for a group by id."""
-        obj = self.group_collection.find_one({'_id': group_id})
-        if obj:
-            return {
-                'task_id': obj['_id'],
-                'date_done': obj['date_done'],
-                'result': [
-                    self.app.AsyncResult(task)
-                    for task in self.decode(obj['result'])
-                ],
-            }
+        pass
 
     def _delete_group(self, group_id):
         """Delete a group by id."""
-        self.group_collection.delete_one({'_id': group_id})
+        pass
 
     def _forget(self, task_id):
         """Remove result from MongoDB.
@@ -265,22 +239,11 @@ class MongoBackend(BaseBackend):
             pymongo.exceptions.OperationsError:
                 if the task_id could not be removed.
         """
-        # By using safe=True, this will wait until it receives a response from
-        # the server.  Likewise, it will raise an OperationsError if the
-        # response was unable to be completed.
-        self.collection.delete_one({'_id': task_id})
+        pass
 
     def cleanup(self):
         """Delete expired meta-data."""
-        if not self.expires:
-            return
-
-        self.collection.delete_many(
-            {'date_done': {'$lt': self.app.now() - self.expires_delta}},
-        )
-        self.group_collection.delete_many(
-            {'date_done': {'$lt': self.app.now() - self.expires_delta}},
-        )
+        pass
 
     def __reduce__(self, args=(), kwargs=None):
         kwargs = {} if not kwargs else kwargs
@@ -312,16 +275,11 @@ class MongoBackend(BaseBackend):
     @cached_property
     def group_collection(self):
         """Get the meta-data task collection."""
-        collection = self.database[self.groupmeta_collection]
-
-        # Ensure an index on date_done is there, if not process the index
-        # in the background.  Once completed cleanup will be much faster
-        collection.create_index('date_done', background=True)
-        return collection
+        pass
 
     @cached_property
     def expires_delta(self):
-        return timedelta(seconds=self.expires)
+        pass
 
     def as_uri(self, include_password=False):
         """Return the backend as an URI.

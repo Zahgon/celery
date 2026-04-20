@@ -197,9 +197,7 @@ class Context:
     @property
     def children(self):
         # children must be an empty list for every thread
-        if self._children is None:
-            self._children = []
-        return self._children
+        pass
 
 
 @abstract.CallableTask.register
@@ -992,13 +990,11 @@ class Task:
 
     def map(self, it):
         """Create a :class:`~celery.canvas.xmap` task from ``it``."""
-        from celery import xmap
-        return xmap(self.s(), it, app=self.app)
+        pass
 
     def starmap(self, it):
         """Create a :class:`~celery.canvas.xstarmap` task from ``it``."""
-        from celery import xstarmap
-        return xstarmap(self.s(), it, app=self.app)
+        pass
 
     def send_event(self, type_, retry=True, retry_policy=None, **fields):
         """Send monitoring event message.
@@ -1243,14 +1239,7 @@ class Task:
 
     def _get_request(self):
         """Get current request object."""
-        req = self.request_stack.top
-        if req is None:
-            # task was not called, but some may still expect a request
-            # to be there, perhaps that should be deprecated.
-            if self._default_request is None:
-                self._default_request = Context()
-            return self._default_request
-        return req
+        pass
     request = property(_get_request)
 
     def _get_exec_options(self):
@@ -1260,14 +1249,11 @@ class Task:
 
     @property
     def backend(self):  # noqa: F811
-        backend = self._backend
-        if backend is None:
-            return self.app.backend
-        return backend
+        pass
 
     @backend.setter
     def backend(self, value):
-        self._backend = value
+        pass
 
     @property
     def __name__(self):

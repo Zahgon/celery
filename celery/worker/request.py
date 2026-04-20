@@ -176,15 +176,15 @@ class Request:
 
     @property
     def delivery_info(self):
-        return self._delivery_info
+        pass
 
     @property
     def message(self):
-        return self._message
+        pass
 
     @property
     def request_dict(self):
-        return self._request_dict
+        pass
 
     @property
     def body(self):
@@ -192,79 +192,79 @@ class Request:
 
     @property
     def app(self):
-        return self._app
+        pass
 
     @property
     def utc(self):
-        return self._utc
+        pass
 
     @property
     def content_type(self):
-        return self._content_type
+        pass
 
     @property
     def content_encoding(self):
-        return self._content_encoding
+        pass
 
     @property
     def type(self):
-        return self._type
+        pass
 
     @property
     def root_id(self):
-        return self._root_id
+        pass
 
     @property
     def parent_id(self):
-        return self._parent_id
+        pass
 
     @property
     def argsrepr(self):
-        return self._argsrepr
+        pass
 
     @property
     def args(self):
-        return self._args
+        pass
 
     @property
     def kwargs(self):
-        return self._kwargs
+        pass
 
     @property
     def kwargsrepr(self):
-        return self._kwargsrepr
+        pass
 
     @property
     def on_ack(self):
-        return self._on_ack
+        pass
 
     @property
     def on_reject(self):
-        return self._on_reject
+        pass
 
     @on_reject.setter
     def on_reject(self, value):
-        self._on_reject = value
+        pass
 
     @property
     def hostname(self):
-        return self._hostname
+        pass
 
     @property
     def ignore_result(self):
-        return self._ignore_result
+        pass
 
     @property
     def eventer(self):
-        return self._eventer
+        pass
 
     @eventer.setter
     def eventer(self, eventer):
-        self._eventer = eventer
+        pass
 
     @property
     def connection_errors(self):
-        return self._connection_errors
+        pass
 
     @property
     def task(self):
@@ -272,53 +272,50 @@ class Request:
 
     @property
     def eta(self):
-        return self._eta
+        pass
 
     @property
     def expires(self):
-        return self._expires
+        pass
 
     @expires.setter
     def expires(self, value):
-        self._expires = value
+        pass
 
     @property
     def tzlocal(self):
-        if self._tzlocal is None:
-            self._tzlocal = self._app.conf.timezone
-        return self._tzlocal
+        pass
 
     @property
     def store_errors(self):
-        return (not self._ignore_result or
-                self.task.store_errors_even_if_ignored)
+        pass
 
     @property
     def task_id(self):
         # XXX compat
-        return self.id
+        pass
 
     @task_id.setter
     def task_id(self, value):
-        self.id = value
+        pass
 
     @property
     def task_name(self):
         # XXX compat
-        return self.name
+        pass
 
     @task_name.setter
     def task_name(self, value):
-        self.name = value
+        pass
 
     @property
     def reply_to(self):
         # used by rpc backend when failures reported by parent process
-        return self._request_dict['reply_to']
+        pass
 
     @property
     def replaced_task_nesting(self):
-        return self._request_dict.get('replaced_task_nesting', 0)
+        pass
 
     @property
     def groups(self):
@@ -326,17 +323,16 @@ class Request:
 
     @property
     def stamped_headers(self) -> list:
-        return self._request_dict.get('stamped_headers') or []
+        pass
 
     @property
     def stamps(self) -> dict:
-        stamps = self._request_dict.get('stamps') or {}
-        return {header: stamps.get(header) for header in self.stamped_headers}
+        pass
 
     @property
     def correlation_id(self):
         # used similarly to reply_to
-        return self._request_dict['correlation_id']
+        pass
 
     def execute_using_pool(self, pool: BasePool, **kwargs):
         """Used by the worker to send this task to the pool.
@@ -348,28 +344,7 @@ class Request:
         Raises:
             celery.exceptions.TaskRevokedError: if the task was revoked.
         """
-        task_id = self.id
-        task = self._task
-        if self.revoked():
-            raise TaskRevokedError(task_id)
-
-        time_limit, soft_time_limit = self.time_limits
-        trace = fast_trace_task if self._app.use_fast_trace_task else trace_task_ret
-        result = pool.apply_async(
-            trace,
-            args=(self._type, task_id, self._request_dict, self._body,
-                  self._content_type, self._content_encoding),
-            accept_callback=self.on_accepted,
-            timeout_callback=self.on_timeout,
-            callback=self.on_success,
-            error_callback=self.on_failure,
-            soft_timeout=soft_time_limit or task.soft_time_limit,
-            timeout=time_limit or task.time_limit,
-            correlation_id=task_id,
-        )
-        # cannot create weakref to None
-        self._apply_result = maybe(ref, result)
-        return result
+        pass
 
     def execute(self, loglevel=None, logfile=None):
         """Execute the task in a :func:`~celery.app.trace.trace_task`.
@@ -514,101 +489,15 @@ class Request:
 
     def on_accepted(self, pid, time_accepted):
         """Handler called when task is accepted by worker pool."""
-        self.worker_pid = pid
-        # Convert monotonic time_accepted to absolute time
-        self.time_start = time() - (monotonic() - time_accepted)
-        task_accepted(self)
-        if not self.task.acks_late:
-            self.acknowledge()
-        self.send_event('task-started')
-        if _does_debug:
-            debug('Task accepted: %s[%s] pid:%r', self.name, self.id, pid)
-        if self._terminate_on_ack is not None:
-            self.terminate(*self._terminate_on_ack)
+        pass
 
     def on_timeout(self, soft, timeout):
         """Handler called if the task times out."""
-        if soft:
-            warn('Soft time limit (%ss) exceeded for %s[%s]',
-                 timeout, self.name, self.id)
-        else:
-            task_ready(self)
-            # This is a special case where the task timeout handling is done during
-            # the cold shutdown process.
-            if not state.should_terminate:
-                error('Hard time limit (%ss) exceeded for %s[%s]', timeout, self.name, self.id)
-                exc = TimeLimitExceeded(timeout)
-
-                self.task.backend.mark_as_failure(
-                    self.id, exc, request=self._context,
-                    store_result=self.store_errors,
-                )
-
-                # Invoke the same failure hooks that a normal task failure
-                # triggers so that on_failure callbacks, errbacks, and
-                # the task_failure signal all fire for hard timeouts.
-                einfo = None
-                try:
-                    try:
-                        raise exc
-                    except TimeLimitExceeded:
-                        einfo = ExceptionInfo()
-
-                    self.task.on_failure(exc, self.id, self.args, self.kwargs, einfo)
-
-                    if task_has_custom(self.task, 'after_return'):
-                        self.task.after_return(
-                            states.FAILURE, exc, self.id, self.args, self.kwargs, None,
-                        )
-
-                    signals.task_failure.send(
-                        sender=self.task,
-                        task_id=self.id,
-                        exception=exc,
-                        args=self.args,
-                        kwargs=self.kwargs,
-                        traceback=exc.__traceback__,
-                        einfo=einfo,
-                    )
-
-                    self.send_event(
-                        'task-failed',
-                        exception=safe_repr(get_pickled_exception(einfo.exception)),
-                        traceback=einfo.traceback,
-                    )
-                    # MEMORY LEAK FIX: clear frame locals retained by the
-                    # synthetic traceback (same pattern as trace.py #8882).
-                    traceback_clear(exc)
-                finally:
-                    # Break the remaining exc → traceback → frame reference
-                    # cycle so the on_timeout frame (and the Request/self it
-                    # contains) can be garbage-collected promptly.
-                    if einfo is not None:
-                        del einfo
-                    exc.__traceback__ = None
-
-            if self.task.acks_late:
-                if self.task.acks_on_timeout:
-                    self.acknowledge()
-                else:
-                    self.reject(requeue=True)
+        pass
 
     def on_success(self, failed__retval__runtime, **kwargs):
         """Handler called if the task was successfully processed."""
-        failed, retval, runtime = failed__retval__runtime
-        if failed:
-            exc = retval.exception
-            if isinstance(exc, ExceptionWithTraceback):
-                exc = exc.exc
-            if isinstance(exc, (SystemExit, KeyboardInterrupt)):
-                raise exc
-            return self.on_failure(retval, return_ok=True)
-        task_ready(self, successful=True)
-
-        if self.task.acks_late:
-            self.acknowledge()
-
-        self.send_event('task-succeeded', result=retval, runtime=runtime)
+        pass
 
     def on_retry(self, exc_info):
         """Handler called if the task should be retried."""
@@ -733,7 +622,7 @@ class Request:
         }
 
     def humaninfo(self):
-        return '{0.name}[{0.id}]'.format(self)
+        pass
 
     def __str__(self):
         """``str(self)``."""
@@ -752,7 +641,7 @@ class Request:
 
     @cached_property
     def _payload(self):
-        return self.__payload
+        pass
 
     @cached_property
     def chord(self):
@@ -769,8 +658,7 @@ class Request:
         # by parent process
         # pylint: disable=unpacking-non-sequence
         #    payload is a property, so pylint doesn't think it's a tuple.
-        _, _, embed = self._payload
-        return embed.get('errbacks')
+        pass
 
     @cached_property
     def group(self):
@@ -781,17 +669,12 @@ class Request:
     @cached_property
     def _context(self):
         """Context (:class:`~celery.app.task.Context`) of this task."""
-        request = self._request_dict
-        # pylint: disable=unpacking-non-sequence
-        #    payload is a property, so pylint doesn't think it's a tuple.
-        _, _, embed = self._payload
-        request.update(**embed or {})
-        return Context(request)
+        pass
 
     @cached_property
     def group_index(self):
         # used by backend.on_chord_part_return to order return values in group
-        return self._request_dict.get('group_index')
+        pass
 
 
 def create_request_cls(base, task, pool, hostname, eventer,
@@ -809,45 +692,9 @@ def create_request_cls(base, task, pool, hostname, eventer,
     class Request(base):
 
         def execute_using_pool(self, pool, **kwargs):
-            task_id = self.task_id
-            if self.revoked():
-                raise TaskRevokedError(task_id)
-
-            time_limit, soft_time_limit = self.time_limits
-            result = apply_async(
-                trace,
-                args=(self.type, task_id, self.request_dict, self.body,
-                      self.content_type, self.content_encoding),
-                accept_callback=self.on_accepted,
-                timeout_callback=self.on_timeout,
-                callback=self.on_success,
-                error_callback=self.on_failure,
-                soft_timeout=soft_time_limit or default_soft_time_limit,
-                timeout=time_limit or default_time_limit,
-                correlation_id=task_id,
-            )
-            # cannot create weakref to None
-            # pylint: disable=attribute-defined-outside-init
-            self._apply_result = maybe(ref, result)
-            return result
+            pass
 
         def on_success(self, failed__retval__runtime, **kwargs):
-            failed, retval, runtime = failed__retval__runtime
-            if failed:
-                exc = retval.exception
-                if isinstance(exc, ExceptionWithTraceback):
-                    exc = exc.exc
-                if isinstance(exc, (SystemExit, KeyboardInterrupt)):
-                    raise exc
-                return self.on_failure(retval, return_ok=True)
-            task_ready(self, successful=True)
-
-            if acks_late:
-                self.acknowledge()
-
-            if events:
-                self.send_event(
-                    'task-succeeded', result=retval, runtime=runtime,
-                )
+            pass
 
     return Request

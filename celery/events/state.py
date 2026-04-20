@@ -124,24 +124,14 @@ def heartbeat_expires(timestamp, freq=60,
 
 
 def _depickle_task(cls, fields):
-    return cls(**fields)
+    pass
 
 
 def with_unique_field(attr):
 
     def _decorate_cls(cls):
 
-        def __eq__(this, other):
-            if isinstance(other, this.__class__):
-                return getattr(this, attr) == getattr(other, attr)
-            return NotImplemented
-        cls.__eq__ = __eq__
-
-        def __hash__(this):
-            return hash(getattr(this, attr))
-        cls.__hash__ = __hash__
-
-        return cls
+        pass
     return _decorate_cls
 
 
@@ -223,7 +213,7 @@ class Worker:
 
     @property
     def status_string(self):
-        return 'ONLINE' if self.alive else 'OFFLINE'
+        pass
 
     @property
     def heartbeat_expires(self):
@@ -236,7 +226,7 @@ class Worker:
 
     @property
     def id(self):
-        return '{0.hostname}.{0.pid}'.format(self)
+        pass
 
 
 @with_unique_field('uuid')
@@ -355,24 +345,24 @@ class Task:
         }
 
     def _serializable_children(self, value):
-        return [task.id for task in self.children]
+        pass
 
     def _serializable_root(self, value):
-        return self.root_id
+        pass
 
     def _serializable_parent(self, value):
-        return self.parent_id
+        pass
 
     def __reduce__(self):
         return _depickle_task, (self.__class__, self.as_dict())
 
     @property
     def id(self):
-        return self.uuid
+        pass
 
     @property
     def origin(self):
-        return self.client if self.worker is None else self.worker.id
+        pass
 
     @property
     def ready(self):
@@ -381,18 +371,12 @@ class Task:
     @cached_property
     def parent(self):
         # issue github.com/mher/flower/issues/648
-        try:
-            return self.parent_id and self.cluster_state.tasks.data[self.parent_id]
-        except KeyError:
-            return None
+        pass
 
     @cached_property
     def root(self):
         # issue github.com/mher/flower/issues/648
-        try:
-            return self.root_id and self.cluster_state.tasks.data[self.root_id]
-        except KeyError:
-            return None
+        pass
 
 
 class State:
@@ -449,8 +433,7 @@ class State:
                     self._clear()
 
     def clear_tasks(self, ready=True):
-        with self._mutex:
-            return self._clear_tasks(ready)
+        pass
 
     def _clear_tasks(self, ready: bool = True):
         if ready:
@@ -480,23 +463,11 @@ class State:
         Returns:
             Tuple: of ``(worker, was_created)`` pairs.
         """
-        try:
-            worker = self.workers[hostname]
-            if kwargs:
-                worker.update(kwargs)
-            return worker, False
-        except KeyError:
-            worker = self.workers[hostname] = self.Worker(
-                hostname, **kwargs)
-            return worker, True
+        pass
 
     def get_or_create_task(self, uuid):
         """Get or create task by uuid."""
-        try:
-            return self.tasks[uuid], False
-        except KeyError:
-            task = self.tasks[uuid] = self.Task(uuid, cluster_state=self)
-            return task, True
+        pass
 
     def event(self, event):
         with self._mutex:
@@ -504,11 +475,11 @@ class State:
 
     def task_event(self, type_, fields):
         """Deprecated, use :meth:`event`."""
-        return self._event(dict(fields, type='-'.join(['task', type_])))[0]
+        pass
 
     def worker_event(self, type_, fields):
         """Deprecated, use :meth:`event`."""
-        return self._event(dict(fields, type='-'.join(['worker', type_])))[0]
+        pass
 
     def _create_dispatcher(self):
 
@@ -682,30 +653,22 @@ class State:
         Returns:
             Generator: giving ``(uuid, Task)`` pairs.
         """
-        return islice(
-            ((uuid, task) for uuid, task in self.tasks_by_time(reverse=reverse)
-             if task.name == name),
-            0, limit,
-        )
+        pass
 
     def _tasks_by_worker(self, hostname, limit=None, reverse=True):
         """Get all tasks by worker.
 
         Slower than accessing :attr:`tasks_by_worker`, but ordered by time.
         """
-        return islice(
-            ((uuid, task) for uuid, task in self.tasks_by_time(reverse=reverse)
-             if task.worker.hostname == hostname),
-            0, limit,
-        )
+        pass
 
     def task_types(self):
         """Return a list of all seen task types."""
-        return sorted(self._seen_types)
+        pass
 
     def alive_workers(self):
         """Return a list of (seemingly) alive workers."""
-        return (w for w in self.workers.values() if w.alive)
+        pass
 
     def __repr__(self):
         return R_STATE.format(self)
@@ -721,7 +684,7 @@ class State:
 
 
 def _serialize_Task_WeakSet_Mapping(mapping):
-    return {name: [t.id for t in tasks] for name, tasks in mapping.items()}
+    pass
 
 
 def _deserialize_Task_WeakSet_Mapping(mapping, tasks):

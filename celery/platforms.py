@@ -326,33 +326,10 @@ class DaemonContext:
         self.stdfds = (sys.stdin, sys.stdout, sys.stderr)
 
     def redirect_to_null(self, fd):
-        if fd is not None:
-            dest = os.open(os.devnull, os.O_RDWR)
-            os.dup2(dest, fd)
+        pass
 
     def open(self):
-        if not self._is_open:
-            if not self.fake:
-                self._detach()
-
-            os.chdir(self.workdir)
-            if self.umask is not None:
-                os.umask(self.umask)
-
-            if self.after_chdir:
-                self.after_chdir()
-
-            if not self.fake:
-                # We need to keep /dev/urandom from closing because
-                # shelve needs it, and Beat needs shelve to start.
-                keep = list(self.stdfds) + fd_by_path(['/dev/urandom'])
-                close_open_fds(keep)
-                for fd in self.stdfds:
-                    self.redirect_to_null(maybe_fileno(fd))
-                if self.after_forkers and mputil is not None:
-                    mputil._run_after_forkers()
-
-            self._is_open = True
+        pass
 
     __enter__ = open
 
@@ -363,14 +340,7 @@ class DaemonContext:
     __exit__ = close
 
     def _detach(self):
-        if os.fork() == 0:  # first child
-            os.setsid()  # create new session
-            if os.fork() > 0:  # pragma: no cover
-                # second child
-                os._exit(0)
-        else:
-            os._exit(0)
-        return self
+        pass
 
 
 def detached(logfile=None, pidfile=None, uid=None, gid=None, umask=0,
@@ -419,10 +389,7 @@ def detached(logfile=None, pidfile=None, uid=None, gid=None, umask=0,
     def after_chdir_do():
         # Since without stderr any errors will be silently suppressed,
         # we need to know that we have access to the logfile.
-        logfile and open(logfile, 'a').close()
-        # Doesn't actually create the pidfile, but makes sure it's not stale.
-        if pidfile:
-            _create_pidlock(pidfile).release()
+        pass
 
     return DaemonContext(
         umask=umask, workdir=workdir, fake=fake, after_chdir=after_chdir_do,
@@ -585,10 +552,10 @@ def _setuid(uid, gid):
 
 if hasattr(_signal, 'setitimer'):
     def _arm_alarm(seconds):
-        _signal.setitimer(_signal.ITIMER_REAL, seconds)
+        pass
 else:
     def _arm_alarm(seconds):
-        _signal.alarm(math.ceil(seconds))
+        pass
 
 
 class Signals:
@@ -630,10 +597,10 @@ class Signals:
     default = _signal.SIG_DFL
 
     def arm_alarm(self, seconds):
-        return _arm_alarm(seconds)
+        pass
 
     def reset_alarm(self):
-        return _signal.alarm(0)
+        pass
 
     def supported(self, name):
         """Return true value if signal by ``name`` exists on this platform."""
@@ -669,7 +636,7 @@ class Signals:
         Does nothing if the platform has no support for signals,
         or the specified signal in particular.
         """
-        self.update((sig, self.ignored) for sig in names)
+        pass
 
     def __getitem__(self, name):
         return _signal.getsignal(self.signum(name))

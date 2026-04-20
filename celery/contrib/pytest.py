@@ -21,12 +21,7 @@ NO_WORKER = os.environ.get('NO_WORKER')
 
 def pytest_configure(config):
     """Register additional pytest configuration."""
-    # add the pytest.mark.celery() marker registration to the pytest.ini [markers] section
-    # this prevents pytest 4.5 and newer from issuing a warning about an unknown marker
-    # and shows helpful marker documentation when running pytest --markers.
-    config.addinivalue_line(
-        "markers", "celery(**overrides): override celery configuration for a test case"
-    )
+    pass
 
 
 @contextmanager
@@ -58,7 +53,7 @@ def use_celery_app_trap():
     The app trap raises an exception whenever something attempts
     to use the current or default apps.
     """
-    return False
+    pass
 
 
 @pytest.fixture(scope='session')
@@ -69,16 +64,7 @@ def celery_session_app(request,
                        use_celery_app_trap):
     # type: (Any, Any, Any, Any, Any) -> Celery
     """Session Fixture: Return app for session fixtures."""
-    mark = request.node.get_closest_marker('celery')
-    config = dict(celery_config, **mark.kwargs if mark else {})
-    with _create_app(enable_logging=celery_enable_logging,
-                     use_trap=use_celery_app_trap,
-                     parameters=celery_parameters,
-                     **config) as app:
-        if not use_celery_app_trap:
-            app.set_default()
-            app.set_current()
-        yield app
+    pass
 
 
 @pytest.fixture(scope='session')
@@ -120,7 +106,7 @@ def celery_includes():
     You can have this return a list of module names to import,
     these can be task modules, modules registering signals, and so on.
     """
-    return ()
+    pass
 
 
 @pytest.fixture(scope='session')
@@ -131,7 +117,7 @@ def celery_worker_pool():
     The "solo" pool is used by default, but you can set this to
     return e.g. "prefork".
     """
-    return 'solo'
+    pass
 
 
 @pytest.fixture(scope='session')
@@ -142,7 +128,7 @@ def celery_config():
     The config returned by your fixture will then be used
     to configure the :func:`celery_app` fixture.
     """
-    return {}
+    pass
 
 
 @pytest.fixture(scope='session')
@@ -166,7 +152,7 @@ def celery_worker_parameters():
     The dict returned by your fixture will then be used
     as parameters when instantiating :class:`~celery.worker.WorkController`.
     """
-    return {}
+    pass
 
 
 @pytest.fixture()
@@ -188,7 +174,7 @@ def celery_app(request,
 @pytest.fixture(scope='session')
 def celery_class_tasks():
     """Redefine this fixture to register tasks with the test Celery app."""
-    return []
+    pass
 
 
 @pytest.fixture()
@@ -199,15 +185,7 @@ def celery_worker(request,
                   celery_worker_parameters):
     # type: (Any, Celery, Sequence[str], str, Any) -> WorkController
     """Fixture: Start worker in a thread, stop it when the test returns."""
-    from .testing import worker
-
-    if not NO_WORKER:
-        for module in celery_includes:
-            celery_app.loader.import_task_module(module)
-        with worker.start_worker(celery_app,
-                                 pool=celery_worker_pool,
-                                 **celery_worker_parameters) as w:
-            yield w
+    pass
 
 
 @pytest.fixture()

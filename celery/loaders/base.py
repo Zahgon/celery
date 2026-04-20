@@ -114,7 +114,7 @@ class BaseLoader:
         self.on_worker_shutdown()
 
     def init_worker_process(self):
-        self.on_worker_process_init()
+        pass
 
     def config_from_object(self, obj, silent=False):
         if isinstance(obj, str):
@@ -145,15 +145,7 @@ class BaseLoader:
             return symbol_by_name(path, imp=imp)
 
     def _import_config_module(self, name):
-        try:
-            self.find_module(name)
-        except NotAPackage as exc:
-            if name.endswith('.py'):
-                reraise(NotAPackage, NotAPackage(CONFIG_WITH_SUFFIX.format(
-                        module=name, suggest=name[:-3])), sys.exc_info()[2])
-            raise NotAPackage(CONFIG_INVALID_NAME.format(module=name)) from exc
-        else:
-            return self.import_from_cwd(name)
+        pass
 
     def find_module(self, module):
         return find_module(module)
@@ -206,73 +198,25 @@ class BaseLoader:
         return dict(getarg(arg) for arg in args)
 
     def read_configuration(self, env='CELERY_CONFIG_MODULE'):
-        try:
-            custom_config = os.environ[env]
-        except KeyError:
-            pass
-        else:
-            if custom_config:
-                usercfg = self._import_config_module(custom_config)
-                return DictAttribute(usercfg)
+        pass
 
     def autodiscover_tasks(self, packages, related_name='tasks'):
-        self.task_modules.update(
-            mod.__name__ for mod in autodiscover_tasks(packages or (),
-                                                       related_name) if mod)
+        pass
 
     @cached_property
     def default_modules(self):
-        return (
-            tuple(self.builtin_modules) +
-            tuple(maybe_list(self.app.conf.imports)) +
-            tuple(maybe_list(self.app.conf.include))
-        )
+        pass
 
     @property
     def conf(self):
         """Loader configuration."""
-        if self._conf is unconfigured:
-            self._conf = self.read_configuration()
-        return self._conf
+        pass
 
 
 def autodiscover_tasks(packages, related_name='tasks'):
-    global _RACE_PROTECTION
-
-    if _RACE_PROTECTION:
-        return ()
-    _RACE_PROTECTION = True
-    try:
-        return [find_related_module(pkg, related_name) for pkg in packages]
-    finally:
-        _RACE_PROTECTION = False
+    pass
 
 
 def find_related_module(package, related_name):
     """Find module in package."""
-    # Django 1.7 allows for specifying a class name in INSTALLED_APPS.
-    # (Issue #2248).
-    try:
-        # Return package itself when no related_name.
-        module = importlib.import_module(package)
-        if not related_name and module:
-            return module
-    except ModuleNotFoundError:
-        # On import error, try to walk package up one level.
-        package, _, _ = package.rpartition('.')
-        if not package:
-            raise
-
-    module_name = f'{package}.{related_name}'
-
-    try:
-        # Try to find related_name under package.
-        return importlib.import_module(module_name)
-    except ModuleNotFoundError as e:
-        import_exc_name = getattr(e, 'name', None)
-        # If candidate does not exist, then return None.
-        if import_exc_name and module_name == import_exc_name:
-            return
-
-        # Otherwise, raise because error probably originated from a nested import.
-        raise e
+    pass

@@ -66,9 +66,7 @@ def _stamp_regen_task(task, visitor, append_stamps, **headers):
     """When stamping a sequence of tasks created by a generator,
     we use this function to stamp each task in the generator
     without exhausting it."""
-
-    task.stamp(visitor, append_stamps, **headers)
-    return task
+    pass
 
 
 def _merge_dictionaries(d1, d2, aggregate_duplicates=True):
@@ -302,8 +300,7 @@ class Signature(dict):
         >>>     pass
         """
         def _inner(subclass):
-            cls.TYPES[name or subclass.__name__] = subclass
-            return subclass
+            pass
 
         return _inner
 
@@ -543,13 +540,10 @@ class Signature(dict):
             Signature: This is a chaining method call
                 (i.e., it will return ``self``).
         """
-        if immutable is not None:
-            self.set_immutable(immutable)
-        self.options.update(options)
-        return self
+        pass
 
     def set_immutable(self, immutable):
-        self.immutable = immutable
+        pass
 
     def _stamp_headers(self, visitor_headers=None, append_stamps=False, self_headers=True, **headers):
         """Collect all stamps from visitor, headers and self,
@@ -750,11 +744,7 @@ class Signature(dict):
 
         "unchain" if you will, but with links intact.
         """
-        return list(itertools.chain.from_iterable(itertools.chain(
-            [[self]],
-            (link.flatten_links()
-             for link in maybe_list(self.options.get('link')) or [])
-        )))
+        pass
 
     def __or__(self, other):
         """Chaining operator.
@@ -786,16 +776,7 @@ class Signature(dict):
         return self.__or__(other)
 
     def election(self):
-        type = self.type
-        app = type.app
-        tid = self.options.get('task_id') or uuid()
-
-        with app.producer_or_acquire(None) as producer:
-            props = type.backend.on_task_call(producer, tid)
-            app.control.election(tid, 'task',
-                                 self.clone(task_id=tid, **props),
-                                 connection=producer.connection)
-            return type.AsyncResult(tid)
+        pass
 
     def reprcall(self, *args, **kwargs):
         """Return a string representation of the signature.
@@ -838,15 +819,15 @@ class Signature(dict):
     @property
     def name(self):
         # for duck typing compatibility with Task.name
-        return self.task
+        pass
 
     @cached_property
     def type(self):
-        return self._type or self.app.tasks[self['task']]
+        pass
 
     @cached_property
     def app(self):
-        return self._app or current_app
+        pass
 
     @cached_property
     def AsyncResult(self):
@@ -857,10 +838,7 @@ class Signature(dict):
 
     @cached_property
     def _apply_async(self):
-        try:
-            return self.type.apply_async
-        except KeyError:
-            return _partial(self.app.send_task, self['task'])
+        pass
 
     id = getitem_property('options.task_id', 'Task UUID')
     parent_id = getitem_property('options.parent_id', 'Task parent UUID.')
@@ -1023,15 +1001,7 @@ class _chain(Signature):
         as the chain itself, to ensure that the correct error callback is called
         if any of the (cloned) tasks of the chain fail.
         """
-        # Clone chain's tasks assigning signatures from link_error
-        # to each task and adding the chain's links to the last task.
-        tasks = [t.clone() for t in self.tasks]
-        for sig in maybe_list(self.options.get('link')) or []:
-            tasks[-1].link(sig)
-        for sig in maybe_list(self.options.get('link_error')) or []:
-            for task in tasks:
-                task.link_error(sig)
-        return tasks
+        pass
 
     def apply_async(self, args=None, kwargs=None, **options):
         # python is best at unpacking kwargs, so .run is here to do that.
@@ -1296,13 +1266,7 @@ class _chain(Signature):
 
     @property
     def app(self):
-        app = self._app
-        if app is None:
-            try:
-                app = self.tasks[0]._app
-            except LookupError:
-                pass
-        return app or current_app
+        pass
 
     def __repr__(self):
         if not self.tasks:
@@ -1594,10 +1558,7 @@ class group(Signature):
 
     def skew(self, start=1.0, stop=None, step=1.0):
         # TODO: Not sure if this is still used anywhere (besides its own tests). Consider removing.
-        it = fxrange(start, stop, step, repeatlast=True)
-        for task in self.tasks:
-            task.set(countdown=next(it))
-        return self
+        pass
 
     def apply_async(self, args=None, kwargs=None, add_to_parent=True,
                     producer=None, link=None, link_error=None, **options):
@@ -1648,8 +1609,7 @@ class group(Signature):
         ])
 
     def set_immutable(self, immutable):
-        for task in self.tasks:
-            task.set_immutable(immutable)
+        pass
 
     def stamp(self, visitor=None, append_stamps=False, **headers):
         visitor_headers = None
@@ -1944,13 +1904,7 @@ class group(Signature):
 
     @property
     def app(self):
-        app = self._app
-        if app is None:
-            try:
-                app = self.tasks[0].app
-            except LookupError:
-                pass
-        return app if app is not None else current_app
+        pass
 
 
 @Signature.register_type(name="chord")
@@ -2334,8 +2288,7 @@ class _chord(Signature):
         Arguments:
             immutable (bool): The new mutability value for chord header.
         """
-        for task in self.tasks:
-            task.set_immutable(immutable)
+        pass
 
     def __repr__(self):
         if self.body:
@@ -2353,7 +2306,7 @@ class _chord(Signature):
 
     @cached_property
     def app(self):
-        return self._get_app(self.body)
+        pass
 
     def _get_app(self, body=None):
         app = self._app

@@ -83,19 +83,19 @@ class BaseSchedule:
 
     @property
     def app(self) -> Celery:
-        return self._app or current_app._get_current_object()
+        pass
 
     @app.setter
     def app(self, app: Celery) -> None:
-        self._app = app
+        pass
 
     @cached_property
     def tz(self) -> tzinfo:
-        return self.app.timezone
+        pass
 
     @cached_property
     def utc_enabled(self) -> bool:
-        return self.app.conf.enable_utc
+        pass
 
     def to_local(self, dt: datetime) -> datetime:
         if not self.utc_enabled:
@@ -186,11 +186,11 @@ class schedule(BaseSchedule):
 
     @property
     def seconds(self) -> int | float:
-        return max(self.run_every.total_seconds(), 0)
+        pass
 
     @property
     def human_seconds(self) -> str:
-        return humanize_seconds(self.seconds)
+        pass
 
 
 class crontab_parser:
@@ -283,17 +283,13 @@ class crontab_parser:
         return [fr]
 
     def _range_steps(self, toks: Sequence[str]) -> list[int]:
-        if len(toks) != 3 or not toks[2]:
-            raise self.ParseException('empty filter')
-        return self._expand_range(toks[:2])[::int(toks[2])]
+        pass
 
     def _star_steps(self, toks: Sequence[str]) -> list[int]:
-        if not toks or not toks[0]:
-            raise self.ParseException('empty filter')
-        return self._expand_star()[::int(toks[0])]
+        pass
 
     def _expand_star(self, *args: Any) -> list[int]:
-        return list(range(self.min_, self.max_ + self.min_))
+        pass
 
     def _expand_number(self, s: str) -> int:
         if isinstance(s, str) and s[0] == '-':

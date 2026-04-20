@@ -87,10 +87,7 @@ def node_format(s: str, name: str, **extra: dict) -> str:
 
 
 def _fmt_process_index(prefix: str = '', default: str = '0') -> str:
-    from .log import current_process_index
-
-    index = current_process_index()
-    return f'{prefix}{index}' if index else default
+    pass
 
 
 _fmt_process_index_with_prefix = partial(_fmt_process_index, '-', '')

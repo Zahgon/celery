@@ -46,11 +46,11 @@ class CLIContext:
 
     @cached_property
     def OK(self):
-        return self.style("OK", fg="green", bold=True)
+        pass
 
     @cached_property
     def ERROR(self):
-        return self.style("ERROR", fg="red", bold=True)
+        pass
 
     def style(self, message=None, **kwargs):
         if self.no_color:
@@ -112,12 +112,7 @@ class CLIContext:
                 text.indent(self.pretty(n['error'])[1], 4))
 
     def say_chat(self, direction, title, body='', show_body=False):
-        if direction == '<-' and self.quiet:
-            return
-        dirstr = not self.quiet and f'{self.style(direction, fg="white", bold=True)} ' or ''
-        self.echo(f'{dirstr} {title}')
-        if body and show_body:
-            self.echo(body)
+        pass
 
 
 def handle_remote_command_error(command: str, exc: Exception) -> None:
@@ -143,19 +138,7 @@ def handle_remote_command_error(command: str, exc: Exception) -> None:
 def handle_preload_options(f):
     """Extract preload options and return a wrapped callable."""
     def caller(ctx, *args, **kwargs):
-        app = ctx.obj.app
-
-        preload_options = [o.name for o in app.user_options.get('preload', [])]
-
-        if preload_options:
-            user_options = {
-                preload_option: kwargs[preload_option]
-                for preload_option in preload_options
-            }
-
-            user_preload_options.send(sender=f, app=app, options=user_options)
-
-        return f(ctx, *args, **kwargs)
+        pass
 
     return update_wrapper(caller, f)
 
@@ -164,9 +147,7 @@ class CeleryOption(click.Option):
     """Customized option for Celery."""
 
     def get_default(self, ctx, *args, **kwargs):
-        if self.default_value_from_context:
-            self.default = ctx.obj[self.default_value_from_context]
-        return super().get_default(ctx, *args, **kwargs)
+        pass
 
     def __init__(self, *args, **kwargs):
         """Initialize a Celery option."""
@@ -180,18 +161,7 @@ class CeleryCommand(click.Command):
 
     def format_options(self, ctx, formatter):
         """Write all the options into the formatter if they exist."""
-        opts = OrderedDict()
-        for param in self.get_params(ctx):
-            rv = param.get_help_record(ctx)
-            if rv is not None:
-                if hasattr(param, 'help_group') and param.help_group:
-                    opts.setdefault(str(param.help_group), []).append(rv)
-                else:
-                    opts.setdefault('Options', []).append(rv)
-
-        for name, opts_group in opts.items():
-            with formatter.section(name):
-                formatter.write_dl(opts_group)
+        pass
 
 
 class DaemonOption(CeleryOption):
@@ -208,7 +178,7 @@ class DaemonOption(CeleryOption):
         Try to fetch daemonization option from applications settings.
         Use the daemon command name as prefix (eg. `worker` -> `worker_pidfile`)
         """
-        return value or getattr(ctx.obj.app.conf, f"{ctx.command.name}_{self.name}", None)
+        pass
 
 
 class CeleryDaemonCommand(CeleryCommand):

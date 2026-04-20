@@ -83,47 +83,27 @@ class Settings(ConfigurationView):
 
     @property
     def broker_read_url(self):
-        return (
-            os.environ.get('CELERY_BROKER_READ_URL') or
-            self.get('broker_read_url') or
-            self.broker_url
-        )
+        pass
 
     @property
     def broker_write_url(self):
-        return (
-            os.environ.get('CELERY_BROKER_WRITE_URL') or
-            self.get('broker_write_url') or
-            self.broker_url
-        )
+        pass
 
     @property
     def broker_url(self):
-        return (
-            os.environ.get('CELERY_BROKER_URL') or
-            self.first('broker_url', 'broker_host')
-        )
+        pass
 
     @property
     def result_backend(self):
-        return (
-            os.environ.get('CELERY_RESULT_BACKEND') or
-            self.first('result_backend', 'CELERY_RESULT_BACKEND')
-        )
+        pass
 
     @property
     def task_default_exchange(self):
-        return self.first(
-            'task_default_exchange',
-            'task_default_queue',
-        )
+        pass
 
     @property
     def task_default_routing_key(self):
-        return self.first(
-            'task_default_routing_key',
-            'task_default_queue',
-        )
+        pass
 
     @property
     def timezone(self):
@@ -136,7 +116,7 @@ class Settings(ConfigurationView):
         return Settings({}, self.maps[:-1])
 
     def value_set_for(self, key):
-        return key in self.without_defaults()
+        pass
 
     def find_option(self, name, namespace=''):
         """Search for option by name.
@@ -299,18 +279,15 @@ class AppPickler:
         app.conf.update(kwargs['changes'])
 
     def build_kwargs(self, *args):
-        return self.build_standard_kwargs(*args)
+        pass
 
     def build_standard_kwargs(self, main, changes, loader, backend, amqp,
                               events, log, control, accept_magic_kwargs,
                               config_source=None):
-        return {'main': main, 'loader': loader, 'backend': backend,
-                'amqp': amqp, 'changes': changes, 'events': events,
-                'log': log, 'control': control, 'set_as_current': False,
-                'config_source': config_source}
+        pass
 
     def construct(self, cls, **kwargs):
-        return cls(**kwargs)
+        pass
 
 
 def _unpickle_app(cls, pickler, *args):

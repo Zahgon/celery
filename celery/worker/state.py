@@ -75,14 +75,7 @@ should_terminate = None
 
 
 def reset_state():
-    requests.clear()
-    reserved_requests.clear()
-    active_requests.clear()
-    successful_requests.clear()
-    total_count.clear()
-    all_total_count[:] = [0]
-    revoked.clear()
-    revoked_stamps.clear()
+    pass
 
 
 def maybe_shutdown():
@@ -107,12 +100,7 @@ def task_accepted(request,
                   add_active_request=active_requests.add,
                   add_to_total_count=total_count.update):
     """Update global state when a task has been accepted."""
-    if not _all_total_count:
-        _all_total_count = all_total_count
-    add_request(request.id, request)
-    add_active_request(request)
-    add_to_total_count({request.name: 1})
-    all_total_count[0] += 1
+    pass
 
 
 def task_ready(request,
@@ -152,12 +140,7 @@ if C_BENCH:  # pragma: no cover
     if current_process()._name == 'MainProcess':
         @atexit.register
         def on_shutdown():
-            if bench_first is not None and bench_last is not None:
-                print('- Time spent in benchmark: {!r}'.format(
-                    bench_last - bench_first))
-                print('- Avg: {}'.format(
-                    sum(bench_sample) / len(bench_sample)))
-                memdump()
+            pass
 
     def task_reserved(request):
         """Called when a task is reserved by the worker."""
@@ -211,9 +194,7 @@ class Persistent:
         self.merge()
 
     def open(self):
-        return self.storage.open(
-            self.filename, protocol=self.protocol, writeback=True,
-        )
+        pass
 
     def merge(self):
         self._merge_with(self.db)
@@ -280,9 +261,8 @@ class Persistent:
 
     @property
     def _revoked_tasks(self):
-        return self.state.revoked
+        pass
 
     @cached_property
     def db(self):
-        self._is_open = True
-        return self.open()
+        pass

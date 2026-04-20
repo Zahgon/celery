@@ -449,47 +449,11 @@ class DynamoDBBackend(KeyValueStoreBackend):
 
     def _prepare_put_request(self, key, value):
         """Construct the item creation request parameters."""
-        timestamp = time()
-        put_request = {
-            'TableName': self.table_name,
-            'Item': {
-                self._key_field.name: {
-                    self._key_field.data_type: key
-                },
-                self._value_field.name: {
-                    self._value_field.data_type: value
-                },
-                self._timestamp_field.name: {
-                    self._timestamp_field.data_type: str(timestamp)
-                }
-            }
-        }
-        if self._has_ttl():
-            put_request['Item'].update({
-                self._ttl_field.name: {
-                    self._ttl_field.data_type:
-                        str(int(timestamp + self.time_to_live_seconds))
-                }
-            })
-        return put_request
+        pass
 
     def _prepare_init_count_request(self, key: str) -> Dict[str, Any]:
         """Construct the counter initialization request parameters"""
-        timestamp = time()
-        return {
-            'TableName': self.table_name,
-            'Item': {
-                self._key_field.name: {
-                    self._key_field.data_type: key
-                },
-                self._count_filed.name: {
-                    self._count_filed.data_type: "0"
-                },
-                self._timestamp_field.name: {
-                    self._timestamp_field.data_type: str(timestamp)
-                }
-            }
-        }
+        pass
 
     def _prepare_inc_count_request(self, key: str) -> Dict[str, Any]:
         """Construct the counter increment request parameters"""
@@ -528,9 +492,7 @@ class DynamoDBBackend(KeyValueStoreBackend):
         return item.get(self._value_field.name)
 
     def set(self, key, value):
-        key = str(key)
-        request_parameters = self._prepare_put_request(key, value)
-        self.client.put_item(**request_parameters)
+        pass
 
     def mget(self, keys):
         return [self.get(key) for key in keys]
@@ -549,8 +511,4 @@ class DynamoDBBackend(KeyValueStoreBackend):
         return int(new_count)
 
     def _apply_chord_incr(self, header_result_args, body, **kwargs):
-        chord_key = self.get_key_for_chord(header_result_args[0])
-        init_count_request = self._prepare_init_count_request(str(chord_key))
-        self.client.put_item(**init_count_request)
-        return super()._apply_chord_incr(
-            header_result_args, body, **kwargs)
+        pass

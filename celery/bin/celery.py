@@ -167,9 +167,7 @@ def celery(ctx, app, broker, result_backend, loader, config, workdir,
 @click.pass_context
 def report(ctx, **kwargs):
     """Shows information useful to include in bug-reports."""
-    app = ctx.obj.app
-    app.loader.import_default_modules()
-    ctx.obj.echo(app.bugreport())
+    pass
 
 
 celery.add_command(purge)
@@ -204,14 +202,7 @@ celery {option_name} celeryapp {info_name} <...>"""
 
 
 def _show(self, file=None):
-    if self.option_name in ('-A', '--app'):
-        self.ctx.obj.error(
-            WRONG_APP_OPTION_USAGE_MESSAGE.format(
-                option_name=self.option_name,
-                info_name=self.ctx.info_name),
-            fg='red'
-        )
-    previous_show_implementation(self, file=file)
+    pass
 
 
 click.exceptions.NoSuchOption.show = _show

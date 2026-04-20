@@ -155,6 +155,5 @@ class Beat:
     def install_sync_handler(self, service: beat.Service) -> None:
         """Install a `SIGTERM` + `SIGINT` handler saving the schedule."""
         def _sync(signum: Signals, frame: FrameType) -> None:
-            service.sync()
-            raise SystemExit()
+            pass
         platforms.signals.update(SIGTERM=_sync, SIGINT=_sync)

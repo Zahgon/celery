@@ -93,50 +93,35 @@ class CursesMonitor:  # pragma: no cover
 
     @property
     def screen_width(self):
-        _, mx = self.win.getmaxyx()
-        return mx
+        pass
 
     @property
     def screen_height(self):
-        my, _ = self.win.getmaxyx()
-        return my
+        pass
 
     @property
     def display_width(self):
-        _, mx = self.win.getmaxyx()
-        return mx - BORDER_SPACING
+        pass
 
     @property
     def display_height(self):
-        my, _ = self.win.getmaxyx()
-        return my - 10
+        pass
 
     @property
     def limit(self):
-        return self.display_height
+        pass
 
     def find_position(self):
-        if not self.tasks:
-            return 0
-        for i, e in enumerate(self.tasks):
-            if self.selected_task == e[0]:
-                return i
-        return 0
+        pass
 
     def move_selection_up(self):
-        self.move_selection(-1)
+        pass
 
     def move_selection_down(self):
-        self.move_selection(1)
+        pass
 
     def move_selection(self, direction=1):
-        if not self.tasks:
-            return
-        pos = self.find_position()
-        try:
-            self.selected_task = self.tasks[pos + direction][0]
-        except IndexError:
-            self.selected_task = self.tasks[0][0]
+        pass
 
     keyalias = {curses.KEY_DOWN: 'J',
                 curses.KEY_UP: 'K',
@@ -153,69 +138,14 @@ class CursesMonitor:  # pragma: no cover
             handler()
 
     def alert(self, callback, title=None):
-        self.win.erase()
-        my, mx = self.win.getmaxyx()
-        y = blank_line = count(2)
-        if title:
-            self.win.addstr(next(y), 3, title,
-                            curses.A_BOLD | curses.A_UNDERLINE)
-            next(blank_line)
-        callback(my, mx, next(y))
-        self.win.addstr(my - 1, 0, 'Press any key to continue...',
-                        curses.A_BOLD)
-        self.win.refresh()
-        while 1:
-            try:
-                return self.win.getkey().upper()
-            except Exception:  # pylint: disable=broad-except
-                pass
+        pass
 
     def selection_rate_limit(self):
-        if not self.selected_task:
-            return curses.beep()
-        task = self.state.tasks[self.selected_task]
-        if not task.name:
-            return curses.beep()
-
-        my, mx = self.win.getmaxyx()
-        r = 'New rate limit: '
-        self.win.addstr(my - 2, 3, r, curses.A_BOLD | curses.A_UNDERLINE)
-        self.win.addstr(my - 2, len(r) + 3, ' ' * (mx - len(r)))
-        rlimit = self.readline(my - 2, 3 + len(r))
-
-        if rlimit:
-            reply = self.app.control.rate_limit(task.name,
-                                                rlimit.strip(), reply=True)
-            self.alert_remote_control_reply(reply)
+        pass
 
     def alert_remote_control_reply(self, reply):
 
-        def callback(my, mx, xs):
-            y = count(xs)
-            if not reply:
-                self.win.addstr(
-                    next(y), 3, 'No replies received in 1s deadline.',
-                    curses.A_BOLD + curses.color_pair(2),
-                )
-                return
-
-            for subreply in reply:
-                curline = next(y)
-
-                host, response = next(subreply.items())
-                host = f'{host}: '
-                self.win.addstr(curline, 3, host, curses.A_BOLD)
-                attr = curses.A_NORMAL
-                text = ''
-                if 'error' in response:
-                    text = response['error']
-                    attr |= curses.color_pair(2)
-                elif 'ok' in response:
-                    text = response['ok']
-                    attr |= curses.color_pair(3)
-                self.win.addstr(curline, 3 + len(host), text, attr)
-
-        return self.alert(callback, 'Remote Control Command Replies')
+        pass
 
     def readline(self, x, y):
         buffer = ''
@@ -237,85 +167,16 @@ class CursesMonitor:  # pragma: no cover
         return buffer
 
     def revoke_selection(self):
-        if not self.selected_task:
-            return curses.beep()
-        reply = self.app.control.revoke(self.selected_task, reply=True)
-        self.alert_remote_control_reply(reply)
+        pass
 
     def selection_info(self):
-        if not self.selected_task:
-            return
-
-        def alert_callback(mx, my, xs):
-            my, mx = self.win.getmaxyx()
-            y = count(xs)
-            task = self.state.tasks[self.selected_task]
-            info = task.info(extra=['state'])
-            infoitems = [
-                ('args', info.pop('args', None)),
-                ('kwargs', info.pop('kwargs', None))
-            ] + list(info.items())
-            for key, value in infoitems:
-                if key is None:
-                    continue
-                value = str(value)
-                curline = next(y)
-                keys = key + ': '
-                self.win.addstr(curline, 3, keys, curses.A_BOLD)
-                wrapped = wrap(value, mx - 2)
-                if len(wrapped) == 1:
-                    self.win.addstr(
-                        curline, len(keys) + 3,
-                        abbr(wrapped[0],
-                             self.screen_width - (len(keys) + 3)))
-                else:
-                    for subline in wrapped:
-                        nexty = next(y)
-                        if nexty >= my - 1:
-                            subline = ' ' * 4 + '[...]'
-                        self.win.addstr(
-                            nexty, 3,
-                            abbr(' ' * 4 + subline, self.screen_width - 4),
-                            curses.A_NORMAL,
-                        )
-
-        return self.alert(
-            alert_callback, f'Task details for {self.selected_task}',
-        )
+        pass
 
     def selection_traceback(self):
-        if not self.selected_task:
-            return curses.beep()
-        task = self.state.tasks[self.selected_task]
-        if task.state not in states.EXCEPTION_STATES:
-            return curses.beep()
-
-        def alert_callback(my, mx, xs):
-            y = count(xs)
-            for line in task.traceback.split('\n'):
-                self.win.addstr(next(y), 3, line)
-
-        return self.alert(
-            alert_callback,
-            f'Task Exception Traceback for {self.selected_task}',
-        )
+        pass
 
     def selection_result(self):
-        if not self.selected_task:
-            return
-
-        def alert_callback(my, mx, xs):
-            y = count(xs)
-            task = self.state.tasks[self.selected_task]
-            result = (getattr(task, 'result', None) or
-                      getattr(task, 'exception', None))
-            for line in wrap(result or '', mx - 2):
-                self.win.addstr(next(y), 3, line)
-
-        return self.alert(
-            alert_callback,
-            f'Task Result for {self.selected_task}',
-        )
+        pass
 
     def display_task_row(self, lineno, task):
         state_color = self.state_colors.get(task.state)
@@ -472,8 +333,7 @@ class CursesMonitor:  # pragma: no cover
 
     @property
     def workers(self):
-        return [hostname for hostname, w in self.state.workers.items()
-                if w.alive]
+        pass
 
 
 class DisplayThread(threading.Thread):  # pragma: no cover
@@ -492,8 +352,7 @@ class DisplayThread(threading.Thread):  # pragma: no cover
 def capture_events(app, state, display):  # pragma: no cover
 
     def on_connection_error(exc, interval):
-        print('Connection Error: {!r}.  Retry in {}s.'.format(
-            exc, interval), file=sys.stderr)
+        pass
 
     while 1:
         print('-> evtop: starting capture...', file=sys.stderr)

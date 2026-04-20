@@ -187,19 +187,16 @@ class _LocalStack:
         self._local.__release_local__()
 
     def _get__ident_func__(self):
-        return self._local.__ident_func__
+        pass
 
     def _set__ident_func__(self, value):
-        object.__setattr__(self._local, '__ident_func__', value)
+        pass
     __ident_func__ = property(_get__ident_func__, _set__ident_func__)
     del _get__ident_func__, _set__ident_func__
 
     def __call__(self):
         def _lookup():
-            rv = self.top
-            if rv is None:
-                raise RuntimeError('object unbound')
-            return rv
+            pass
         return Proxy(_lookup)
 
     def push(self, obj):
@@ -237,10 +234,7 @@ class _LocalStack:
     def stack(self):
         # get_current_worker_task uses this to find
         # the original task that was executed by the worker.
-        stack = getattr(self._local, 'stack', None)
-        if stack is not None:
-            return stack
-        return []
+        pass
 
     @property
     def top(self):
@@ -249,10 +243,7 @@ class _LocalStack:
         Note:
             If the stack is empty, :const:`None` is returned.
         """
-        try:
-            return self._local.stack[-1]
-        except (AttributeError, IndexError):
-            return None
+        pass
 
 
 class LocalManager:
@@ -297,8 +288,7 @@ class LocalManager:
 
         Call this at the end of the request or use ``make_middleware()``.
         """
-        for local in self.locals:
-            release_local(local)
+        pass
 
     def __repr__(self):
         return '<{} storages: {}>'.format(
@@ -315,10 +305,7 @@ class _FastLocalStack(threading.local):
 
     @property
     def top(self):
-        try:
-            return self.stack[-1]
-        except (AttributeError, IndexError):
-            return None
+        pass
 
     __class_getitem__ = classmethod(types.GenericAlias)
 

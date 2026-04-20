@@ -137,42 +137,10 @@ class ColorFormatter(logging.Formatter):
         self.use_color = use_color
 
     def formatException(self, ei):
-        if ei and not isinstance(ei, tuple):
-            ei = sys.exc_info()
-        r = super().formatException(ei)
-        return r
+        pass
 
     def format(self, record):
-        msg = super().format(record)
-        color = self.colors.get(record.levelname)
-
-        # reset exception info later for other handlers...
-        einfo = sys.exc_info() if record.exc_info == 1 else record.exc_info
-
-        if color and self.use_color:
-            try:
-                # safe_str will repr the color object
-                # and color will break on non-string objects
-                # so need to reorder calls based on type.
-                # Issue #427
-                try:
-                    if isinstance(msg, str):
-                        return str(color(safe_str(msg)))
-                    return safe_str(color(msg))
-                except UnicodeDecodeError:  # pragma: no cover
-                    return safe_str(msg)  # skip colors
-            except Exception as exc:  # pylint: disable=broad-except
-                prev_msg, record.exc_info, record.msg = (
-                    record.msg, 1, '<Unrepresentable {!r}: {!r}>'.format(
-                        type(msg), exc
-                    ),
-                )
-                try:
-                    return super().format(record)
-                finally:
-                    record.msg, record.exc_info = prev_msg, einfo
-        else:
-            return safe_str(msg)
+        pass
 
 
 class LoggingProxy:
@@ -206,10 +174,7 @@ class LoggingProxy:
             class WithSafeHandleError(logging.Handler):
 
                 def handleError(self, record):
-                    try:
-                        traceback.print_exc(None, sys.__stderr__)
-                    except OSError:
-                        pass    # see python issue 5971
+                    pass
 
             handler.handleError = WithSafeHandleError().handleError
         return [wrap_handler(h) for h in self.logger.handlers]
@@ -242,8 +207,7 @@ class LoggingProxy:
         The sequence can be any iterable object producing strings.
         This is equivalent to calling :meth:`write` for each string.
         """
-        for part in sequence:
-            self.write(part)
+        pass
 
     def flush(self):
         # This object is not buffered so any :meth:`flush`
@@ -291,5 +255,4 @@ def current_process():
 
 
 def current_process_index(base=1):
-    index = getattr(current_process(), 'index', None)
-    return index + base if index is not None else index
+    pass

@@ -44,7 +44,7 @@ def dedent(s: str, sep: str = '\n') -> str:
 
 def fill_paragraphs(s: str, width: int, sep: str = '\n') -> str:
     """Fill paragraphs with newlines (or custom separator)."""
-    return sep.join(fill(p, width) for p in s.split(sep))
+    pass
 
 
 def join(l: list[str], sep: str = '\n') -> str:
@@ -54,7 +54,7 @@ def join(l: list[str], sep: str = '\n') -> str:
 
 def ensure_sep(sep: str, s: str, n: int = 2) -> str:
     """Ensure text s ends in separator sep'."""
-    return s + sep * (n - s.count(sep))
+    pass
 
 
 ensure_newlines = partial(ensure_sep, '\n')
@@ -125,14 +125,7 @@ def simple_format(
         keys.setdefault('%', '%')
 
         def resolve(match: Match) -> str | Any:
-            key = match.expand(expand)
-            try:
-                resolver = keys[key]
-            except KeyError:
-                raise ValueError(UNKNOWN_SIMPLE_FORMAT_KEY.format(key, s))
-            if callable(resolver):
-                return resolver()
-            return resolver
+            pass
 
         return pattern.sub(resolve, s)
     return s

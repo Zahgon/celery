@@ -144,32 +144,19 @@ class Rdb(Pdb):
         self._close_session()
 
     def _close_session(self):
-        self.stdin, self.stdout = sys.stdin, sys.stdout = self._prev_handles
-        if self.active:
-            if self._handle is not None:
-                self._handle.close()
-            if self._client is not None:
-                self._client.close()
-            if self._sock is not None:
-                self._sock.close()
-            self.active = False
-            self.say(SESSION_ENDED.format(self=self))
+        pass
 
     def do_continue(self, arg):
-        self._close_session()
-        self.set_continue()
-        return 1
+        pass
     do_c = do_cont = do_continue
 
     def do_quit(self, arg):
-        self._close_session()
-        self.set_quit()
-        return 1
+        pass
     do_q = do_exit = do_quit
 
     def set_quit(self):
         # this raises a BdbQuit exception that we're unable to catch.
-        sys.settrace(None)
+        pass
 
 
 def debugger():

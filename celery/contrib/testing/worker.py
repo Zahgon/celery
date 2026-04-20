@@ -67,8 +67,7 @@ class TestWorkController(worker.WorkController):
             return record
 
         def handleError(self, record):
-            if logging.raiseExceptions:
-                raise
+            pass
 
     def start(self):
         if self.logger_queue:
@@ -81,9 +80,7 @@ class TestWorkController(worker.WorkController):
     def on_consumer_ready(self, consumer):
         # type: (celery.worker.consumer.Consumer) -> None
         """Callback called when the Consumer blueprint is fully started."""
-        self._on_started.set()
-        test_worker_started.send(
-            sender=self.app, worker=self, consumer=consumer)
+        pass
 
     def ensure_started(self):
         # type: () -> None
@@ -205,15 +202,7 @@ def _start_worker_process(app,
     Yields:
         celery.app.worker.Worker: worker instance.
     """
-    from celery.apps.multi import Cluster, Node
-
-    app.set_current()
-    cluster = Cluster([Node('testworker1@%h')])
-    cluster.start()
-    try:
-        yield
-    finally:
-        cluster.stopwait()
+    pass
 
 
 def setup_app_for_worker(app: Celery, loglevel: Union[str, int], logfile: str) -> None:

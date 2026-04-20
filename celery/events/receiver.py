@@ -79,8 +79,7 @@ class EventReceiver(ConsumerMixin):
 
     def process(self, type, event):
         """Process event by dispatching to configured handler."""
-        handler = self.handlers.get(type) or self.handlers.get('*')
-        handler and handler(event)
+        pass
 
     def get_consumers(self, Consumer, channel):
         return [Consumer(queues=[self.queue],
@@ -89,11 +88,10 @@ class EventReceiver(ConsumerMixin):
 
     def on_consume_ready(self, connection, channel, consumers,
                          wakeup=True, **kwargs):
-        if wakeup:
-            self.wakeup_workers(channel=channel)
+        pass
 
     def itercapture(self, limit=None, timeout=None, wakeup=True):
-        return self.consume(limit=limit, timeout=timeout, wakeup=wakeup)
+        pass
 
     def capture(self, limit=None, timeout=None, wakeup=True):
         """Open up a consumer capturing events.
@@ -106,43 +104,16 @@ class EventReceiver(ConsumerMixin):
             pass
 
     def wakeup_workers(self, channel=None):
-        self.app.control.broadcast('heartbeat',
-                                   connection=self.connection,
-                                   channel=channel)
+        pass
 
     def event_from_message(self, body, localize=True,
                            now=time.time, tzfields=_TZGETTER,
                            adjust_timestamp=adjust_timestamp,
                            CLIENT_CLOCK_SKEW=CLIENT_CLOCK_SKEW):
-        type = body['type']
-        if type == 'task-sent':
-            # clients never sync so cannot use their clock value
-            _c = body['clock'] = (self.clock.value or 1) + CLIENT_CLOCK_SKEW
-            self.adjust_clock(_c)
-        else:
-            try:
-                clock = body['clock']
-            except KeyError:
-                body['clock'] = self.forward_clock()
-            else:
-                self.adjust_clock(clock)
-
-        if localize:
-            try:
-                offset, timestamp = tzfields(body)
-            except KeyError:
-                pass
-            else:
-                body['timestamp'] = adjust_timestamp(timestamp, offset)
-        body['local_received'] = now()
-        return type, body
+        pass
 
     def _receive(self, body, message, list=list, isinstance=isinstance):
-        if isinstance(body, list):  # celery 4.0+: List of events
-            process, from_message = self.process, self.event_from_message
-            [process(*from_message(event)) for event in body]
-        else:
-            self.process(*self.event_from_message(body))
+        pass
 
     @property
     def connection(self):

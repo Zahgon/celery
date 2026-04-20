@@ -218,17 +218,11 @@ class WorkController:
         )
 
     def _process_task_sem(self, req):
-        return self._quick_acquire(self._process_task, req)
+        pass
 
     def _process_task(self, req):
         """Process task by sending it to the pool of workers."""
-        try:
-            req.execute_using_pool(self.pool)
-        except TaskRevokedError:
-            try:
-                self._quick_release()   # Issue 877
-            except AttributeError:
-                pass
+        pass
 
     def signal_consumer_close(self):
         try:
@@ -301,37 +295,10 @@ class WorkController:
                 'uptime': round(uptime.total_seconds())}
 
     def rusage(self):
-        if resource is None:
-            raise NotImplementedError('rusage not supported by this platform')
-        s = resource.getrusage(resource.RUSAGE_SELF)
-        return {
-            'utime': s.ru_utime,
-            'stime': s.ru_stime,
-            'maxrss': s.ru_maxrss,
-            'ixrss': s.ru_ixrss,
-            'idrss': s.ru_idrss,
-            'isrss': s.ru_isrss,
-            'minflt': s.ru_minflt,
-            'majflt': s.ru_majflt,
-            'nswap': s.ru_nswap,
-            'inblock': s.ru_inblock,
-            'oublock': s.ru_oublock,
-            'msgsnd': s.ru_msgsnd,
-            'msgrcv': s.ru_msgrcv,
-            'nsignals': s.ru_nsignals,
-            'nvcsw': s.ru_nvcsw,
-            'nivcsw': s.ru_nivcsw,
-        }
+        pass
 
     def stats(self):
-        info = self.info()
-        info.update(self.blueprint.info(self))
-        info.update(self.consumer.blueprint.info(self.consumer))
-        try:
-            info['rusage'] = self.rusage()
-        except NotImplementedError:
-            info['rusage'] = 'N/A'
-        return info
+        pass
 
     def __repr__(self):
         """``repr(worker)``."""
@@ -423,13 +390,4 @@ class WorkController:
             soft shutdown timeout even if it is set as it makes no sense to wait for
             the timeout when there are no tasks to process.
         """
-        app = self.app
-        requests = tuple(state.active_requests)
-
-        if app.conf.worker_enable_soft_shutdown_on_idle:
-            requests = True
-
-        if app.conf.worker_soft_shutdown_timeout > 0 and requests:
-            log = f"Initiating Soft Shutdown, terminating in {app.conf.worker_soft_shutdown_timeout} seconds"
-            logger.warning(log)
-            sleep(app.conf.worker_soft_shutdown_timeout)
+        pass

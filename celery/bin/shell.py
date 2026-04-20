@@ -39,26 +39,19 @@ def _invoke_ipython_shell(locals):
 
 
 def _ipython(locals):
-    from IPython import start_ipython
-    start_ipython(argv=[], user_ns=locals)
+    pass
 
 
 def _ipython_pre_10(locals):  # pragma: no cover
-    from IPython.frontend.terminal.ipapp import TerminalIPythonApp
-    app = TerminalIPythonApp.instance()
-    app.initialize(argv=[])
-    app.shell.user_ns.update(locals)
-    app.start()
+    pass
 
 
 def _ipython_terminal(locals):  # pragma: no cover
-    from IPython.terminal import embed
-    embed.TerminalInteractiveShell(user_ns=locals).mainloop()
+    pass
 
 
 def _ipython_010(locals):  # pragma: no cover
-    from IPython.Shell import IPShell
-    IPShell(argv=[], user_ns=locals).mainloop()
+    pass
 
 
 def _no_ipython(self):  # pragma: no cover

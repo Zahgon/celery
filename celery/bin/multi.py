@@ -143,28 +143,19 @@ def main():
 def splash(fun):
 
     @wraps(fun)
-    def _inner(self, *args, **kwargs):
-        self.splash()
-        return fun(self, *args, **kwargs)
-    return _inner
+    pass
 
 
 def using_cluster(fun):
 
     @wraps(fun)
-    def _inner(self, *argv, **kwargs):
-        return fun(self, self.cluster_from_argv(argv), **kwargs)
-    return _inner
+    pass
 
 
 def using_cluster_and_sig(fun):
 
     @wraps(fun)
-    def _inner(self, *argv, **kwargs):
-        p, cluster = self._cluster_from_argv(argv)
-        sig = self._find_sig_argument(p)
-        return fun(self, cluster, sig, **kwargs)
-    return _inner
+    pass
 
 
 class TermLogger:
@@ -214,9 +205,7 @@ class TermLogger:
         self.say(USAGE.format(prog_name=self.prog_name))
 
     def splash(self):
-        if not self.nosplash:
-            self.note(self.colored.cyan(
-                self.splash_text.format(**self.splash_context)))
+        pass
 
     @cached_property
     def colored(self):
@@ -300,7 +289,7 @@ class MultiTool(TermLogger):
     @splash
     @using_cluster_and_sig
     def stopwait(self, cluster, sig, **kwargs):
-        return cluster.stopwait(sig=sig, **kwargs)
+        pass
     stop_verify = stopwait  # compat
 
     @splash
@@ -310,7 +299,7 @@ class MultiTool(TermLogger):
 
     @using_cluster
     def names(self, cluster):
-        self.say('\n'.join(n.name for n in cluster))
+        pass
 
     def get(self, wanted, *argv):
         try:
@@ -322,10 +311,7 @@ class MultiTool(TermLogger):
 
     @using_cluster
     def show(self, cluster):
-        return self.ok('\n'.join(
-            ' '.join(node.argv_with_executable)
-            for node in cluster
-        ))
+        pass
 
     @splash
     @using_cluster
@@ -339,22 +325,10 @@ class MultiTool(TermLogger):
         ))
 
     def help(self, *argv):
-        self.say(__doc__)
+        pass
 
     def _find_sig_argument(self, p, default=signal.SIGTERM):
-        args = p.args[len(p.values):]
-        for arg in reversed(args):
-            if len(arg) == 2 and arg[0] == '-':
-                try:
-                    return int(arg[1])
-                except ValueError:
-                    pass
-            if arg[0] == '-':
-                try:
-                    return signals.signum(arg[1:])
-                except (AttributeError, TypeError):
-                    pass
-        return default
+        pass
 
     def _nodes_from_argv(self, argv, cmd=None):
         cmd = cmd if cmd is not None else self.cmd
@@ -393,71 +367,61 @@ class MultiTool(TermLogger):
         )
 
     def on_stopping_preamble(self, nodes):
-        self.note(self.colored.blue('> Stopping nodes...'))
+        pass
 
     def on_send_signal(self, node, sig):
-        self.note('\t> {0.name}: {1} -> {0.pid}'.format(node, sig))
+        pass
 
     def on_still_waiting_for(self, nodes):
-        num_left = len(nodes)
-        if num_left:
-            self.note(self.colored.blue(
-                '> Waiting for {} {} -> {}...'.format(
-                    num_left, pluralize(num_left, 'node'),
-                    ', '.join(str(node.pid) for node in nodes)),
-            ), newline=False)
+        pass
 
     def on_still_waiting_progress(self, nodes):
-        self.note('.', newline=False)
+        pass
 
     def on_still_waiting_end(self):
-        self.note('')
+        pass
 
     def on_node_signal_dead(self, node):
-        self.note(
-            'Could not signal {0.name} ({0.pid}): No such process'.format(
-                node))
+        pass
 
     def on_node_start(self, node):
-        self.note(f'\t> {node.name}: ', newline=False)
+        pass
 
     def on_node_restart(self, node):
-        self.note(self.colored.blue(
-            f'> Restarting node {node.name}: '), newline=False)
+        pass
 
     def on_node_down(self, node):
-        self.note(f'> {node.name}: {self.DOWN}')
+        pass
 
     def on_node_shutdown_ok(self, node):
-        self.note(f'\n\t> {node.name}: {self.OK}')
+        pass
 
     def on_node_status(self, node, retval):
-        self.note(retval and self.FAILED or self.OK)
+        pass
 
     def on_node_signal(self, node, sig):
-        self.note('Sending {sig} to node {0.name} ({0.pid})'.format(
-            node, sig=sig))
+        pass
 
     def on_child_spawn(self, node, argstr, env):
-        self.info(f'  {argstr}')
+        pass
 
     def on_child_signalled(self, node, signum):
-        self.note(f'* Child was terminated by signal {signum}')
+        pass
 
     def on_child_failure(self, node, retcode):
-        self.note(f'* Child terminated with exit code {retcode}')
+        pass
 
     @cached_property
     def OK(self):
-        return str(self.colored.green('OK'))
+        pass
 
     @cached_property
     def FAILED(self):
-        return str(self.colored.red('FAILED'))
+        pass
 
     @cached_property
     def DOWN(self):
-        return str(self.colored.magenta('DOWN'))
+        pass
 
 
 @click.command(

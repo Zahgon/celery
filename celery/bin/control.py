@@ -14,13 +14,7 @@ from celery.worker.control import Panel
 
 
 def _say_remote_command_reply(ctx, replies, show_reply=False):
-    node = next(iter(replies))  # <-- take first.
-    reply = replies[node]
-    node = ctx.obj.style(f'{node}: ', fg='cyan', bold=True)
-    status, preply = ctx.obj.pretty(reply)
-    ctx.obj.say_chat('->', f'{node}{status}',
-                     text.indent(preply, 4) if show_reply else '',
-                     show_body=show_reply)
+    pass
 
 
 def _consume_arguments(meta, method, args):

@@ -47,10 +47,7 @@ class Tasks(bootsteps.StartStopStep):
         )
 
         def set_prefetch_count(prefetch_count):
-            return c.task_consumer.qos(
-                prefetch_count=prefetch_count,
-                apply_global=qos_global,
-            )
+            pass
         eta_task_limit = c.app.conf.worker_eta_task_limit
         c.qos = QoS(
             set_prefetch_count, c.initial_prefetch_count, max_prefetch=eta_task_limit
@@ -75,10 +72,7 @@ class Tasks(bootsteps.StartStopStep):
 
             def can_consume(self):
                 # Prefer autoscaler's max_concurrency if set; otherwise fall back to pool size
-                limit = getattr(c.controller, "max_concurrency", None) or c.pool.num_processes
-                if len(state.reserved_requests) >= limit:
-                    return False
-                return original_can_consume()
+                pass
 
             channel_qos.can_consume = MethodType(can_consume, channel_qos)
 

@@ -47,10 +47,10 @@ class Timer(bootsteps.Step):
                                        on_tick=self.on_timer_tick)
 
     def on_timer_error(self, exc):
-        logger.error('Timer error: %r', exc, exc_info=True)
+        pass
 
     def on_timer_tick(self, delay):
-        logger.debug('Timer wake-up! Next ETA %s secs.', delay)
+        pass
 
 
 class Hub(bootsteps.StartStopStep):

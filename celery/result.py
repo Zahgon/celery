@@ -103,22 +103,19 @@ class AsyncResult(ResultBase):
     @property
     def ignored(self):
         """If True, task result retrieval is disabled."""
-        if hasattr(self, '_ignored'):
-            return self._ignored
-        return False
+        pass
 
     @ignored.setter
     def ignored(self, value):
         """Enable/disable task result retrieval."""
-        self._ignored = value
+        pass
 
     def then(self, callback, on_error=None, weak=False):
         self.backend.add_pending_result(self, weak=weak)
         return self.on_ready.then(callback, on_error)
 
     def _on_fulfilled(self, result):
-        self.backend.remove_pending_result(self)
-        return result
+        pass
 
     def as_tuple(self):
         parent = self.parent
@@ -126,21 +123,11 @@ class AsyncResult(ResultBase):
 
     def as_list(self):
         """Return as a list of task IDs."""
-        results = []
-        parent = self.parent
-        results.append(self.id)
-        if parent is not None:
-            results.extend(parent.as_list())
-        return results
+        pass
 
     def forget(self):
         """Forget the result of this task and its parents."""
-        self._cache = None
-        if self.parent:
-            self.parent.forget()
-
-        self.backend.remove_pending_result(self)
-        self.backend.forget(self.id)
+        pass
 
     def revoke(self, connection=None, terminate=False, signal=None,
                wait=False, timeout=None):
@@ -184,9 +171,7 @@ class AsyncResult(ResultBase):
             timeout (float): Time in seconds to wait for replies when
                 ``wait`` is enabled.
         """
-        self.app.control.revoke_by_stamped_headers(headers, connection=connection,
-                                                   terminate=terminate, signal=signal,
-                                                   reply=wait, timeout=timeout)
+        pass
 
     def get(self, timeout=None, propagate=True, interval=0.5,
             no_ack=True, follow_parents=True, callback=None, on_message=None,
@@ -329,10 +314,7 @@ class AsyncResult(ResultBase):
             yield R, R.get(**kwargs)
 
     def get_leaf(self):
-        value = None
-        for _, R in self.iterdeps():
-            value = R.get()
-        return value
+        pass
 
     def iterdeps(self, intermediate=False):
         stack = deque([(None, self)])
@@ -380,7 +362,7 @@ class AsyncResult(ResultBase):
 
     def failed(self):
         """Return :const:`True` if the task failed."""
-        return self.state == states.FAILURE
+        pass
 
     def throw(self, *args, **kwargs):
         self.on_ready.throw(*args, **kwargs)
@@ -452,11 +434,11 @@ class AsyncResult(ResultBase):
 
     @property
     def supports_native_join(self):
-        return self.backend.supports_native_join
+        pass
 
     @property
     def children(self):
-        return self._get_task_meta().get('children')
+        pass
 
     def _maybe_set_cache(self, meta):
         if meta:
@@ -499,7 +481,7 @@ class AsyncResult(ResultBase):
     @property
     def traceback(self):
         """Get the traceback of a failed task."""
-        return self._get_task_meta().get('traceback')
+        pass
 
     @property
     def state(self):
@@ -536,23 +518,23 @@ class AsyncResult(ResultBase):
     @property
     def task_id(self):
         """Compat. alias to :attr:`id`."""
-        return self.id
+        pass
 
     @task_id.setter
     def task_id(self, id):
-        self.id = id
+        pass
 
     @property
     def name(self):
-        return self._get_task_meta().get('name')
+        pass
 
     @property
     def args(self):
-        return self._get_task_meta().get('args')
+        pass
 
     @property
     def kwargs(self):
-        return self._get_task_meta().get('kwargs')
+        pass
 
     @property
     def worker(self):
@@ -561,14 +543,11 @@ class AsyncResult(ResultBase):
     @property
     def date_done(self):
         """UTC date and time."""
-        date_done = self._get_task_meta().get('date_done')
-        if date_done and not isinstance(date_done, datetime.datetime):
-            return isoparse(date_done)
-        return date_done
+        pass
 
     @property
     def retries(self):
-        return self._get_task_meta().get('retries')
+        pass
 
     @property
     def queue(self):
@@ -607,8 +586,7 @@ class ResultSet(ResultBase):
                 self._on_full.add(result)
 
     def _on_ready(self):
-        if self.backend.is_async:
-            self.on_ready()
+        pass
 
     def remove(self, result):
         """Remove result from the set; it must be a member.
@@ -657,7 +635,7 @@ class ResultSet(ResultBase):
             bool: true if one of the tasks failed.
                 (i.e., raised an exception)
         """
-        return any(result.failed() for result in self.results)
+        pass
 
     def maybe_throw(self, callback=None, propagate=True):
         for result in self.results:
@@ -671,7 +649,7 @@ class ResultSet(ResultBase):
             bool: true if one of the tasks are still
                 waiting for execution.
         """
-        return any(not result.ready() for result in self.results)
+        pass
 
     def ready(self):
         """Did all of the tasks complete? (either by success of failure).
@@ -690,12 +668,11 @@ class ResultSet(ResultBase):
         Returns:
             int: the number of complete (i.e. successful) tasks.
         """
-        return sum(int(result.successful()) for result in self.results)
+        pass
 
     def forget(self):
         """Forget about (and possible remove the result of) all the tasks."""
-        for result in self.results:
-            result.forget()
+        pass
 
     def revoke(self, connection=None, terminate=False, signal=None,
                wait=False, timeout=None):
@@ -839,11 +816,7 @@ class ResultSet(ResultBase):
         This is currently only supported by the amqp, Redis and cache
         result backends.
         """
-        return self.backend.iter_native(
-            self,
-            timeout=timeout, interval=interval, no_ack=no_ack,
-            on_message=on_message, on_interval=on_interval,
-        )
+        pass
 
     def join_native(self, timeout=None, propagate=True,
                     interval=0.5, callback=None, no_ack=True,
@@ -859,27 +832,7 @@ class ResultSet(ResultBase):
         This is currently only supported by the amqp, Redis and cache
         result backends.
         """
-        if disable_sync_subtasks:
-            assert_will_not_block()
-        order_index = None if callback else {
-            result.id: i for i, result in enumerate(self.results)
-        }
-        acc = None if callback else [None for _ in range(len(self))]
-        for task_id, meta in self.iter_native(timeout, interval, no_ack,
-                                              on_message, on_interval):
-            if isinstance(meta, list):
-                value = []
-                for children_result in meta:
-                    value.append(children_result.get())
-            else:
-                value = meta['result']
-                if propagate and meta['status'] in states.PROPAGATE_STATES:
-                    raise value
-            if callback:
-                callback(task_id, value)
-            else:
-                acc[order_index[task_id]] = value
-        return acc
+        pass
 
     def _iter_meta(self, **kwargs):
         return (meta for _, meta in self.backend.get_many(
@@ -904,25 +857,19 @@ class ResultSet(ResultBase):
 
     @property
     def supports_native_join(self):
-        try:
-            return self.results[0].supports_native_join
-        except IndexError:
-            pass
+        pass
 
     @property
     def app(self):
-        if self._app is None:
-            self._app = (self.results[0].app if self.results else
-                         current_app._get_current_object())
-        return self._app
+        pass
 
     @app.setter
     def app(self, app):
-        self._app = app
+        pass
 
     @property
     def backend(self):
-        return self.app.backend if self.app else self.results[0].backend
+        pass
 
 
 @Thenable.register
@@ -952,8 +899,7 @@ class GroupResult(ResultSet):
         super().__init__(results, **kwargs)
 
     def _on_ready(self):
-        self.backend.remove_pending_result(self)
-        super()._on_ready()
+        pass
 
     def save(self, backend=None):
         """Save group-result for later retrieval using :meth:`restore`.
@@ -1009,7 +955,7 @@ class GroupResult(ResultSet):
 
     @property
     def children(self):
-        return self.results
+        pass
 
     @classmethod
     def restore(cls, id, backend=None, app=None):
@@ -1080,13 +1026,7 @@ class EagerResult(AsyncResult):
 
     @property
     def _cache(self):
-        return {
-            'task_id': self.id,
-            'result': self._result,
-            'status': self._state,
-            'traceback': self._traceback,
-            'name': self._name,
-        }
+        pass
 
     @property
     def result(self):
@@ -1102,11 +1042,11 @@ class EagerResult(AsyncResult):
     @property
     def traceback(self):
         """The traceback if the task failed."""
-        return self._traceback
+        pass
 
     @property
     def supports_native_join(self):
-        return False
+        pass
 
 
 def result_from_tuple(r, app=None):

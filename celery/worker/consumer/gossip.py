@@ -79,59 +79,20 @@ class Gossip(bootsteps.ConsumerStep):
             return conn.transport.driver_type in self.compatible_transports
 
     def election(self, id, topic, action=None):
-        self.consensus_replies[id] = []
-        self.dispatcher.send(
-            'worker-elect',
-            id=id, topic=topic, action=action, cver=1,
-        )
+        pass
 
     def call_task(self, task):
-        try:
-            self.app.signature(task).apply_async()
-        except Exception as exc:  # pylint: disable=broad-except
-            logger.exception('Could not call task: %r', exc)
+        pass
 
     def on_elect(self, event):
-        try:
-            (id_, clock, hostname, pid,
-             topic, action, _) = self._cons_stamp_fields(event)
-        except KeyError as exc:
-            return logger.exception('election request missing field %s', exc)
-        heappush(
-            self.consensus_requests[id_],
-            (clock, f'{hostname}.{pid}', topic, action),
-        )
-        self.dispatcher.send('worker-elect-ack', id=id_)
+        pass
 
     def start(self, c):
         super().start(c)
         self.dispatcher = c.event_dispatcher
 
     def on_elect_ack(self, event):
-        id = event['id']
-        try:
-            replies = self.consensus_replies[id]
-        except KeyError:
-            return  # not for us
-        alive_workers = set(self.state.alive_workers())
-        replies.append(event['hostname'])
-
-        if len(replies) >= len(alive_workers):
-            _, leader, topic, action = self.clock.sort_heap(
-                self.consensus_requests[id],
-            )
-            if leader == self.full_hostname:
-                info('I won the election %r', id)
-                try:
-                    handler = self.election_handlers[topic]
-                except KeyError:
-                    logger.exception('Unknown election topic %r', topic)
-                else:
-                    handler(action)
-            else:
-                info('node %s elected for %r', leader, id)
-            self.consensus_requests.pop(id, None)
-            self.consensus_replies.pop(id, None)
+        pass
 
     def on_node_join(self, worker):
         debug('%s joined the party', worker.hostname)
@@ -142,8 +103,7 @@ class Gossip(bootsteps.ConsumerStep):
         self._call_handlers(self.on.node_leave, worker)
 
     def on_node_lost(self, worker):
-        info('missed heartbeat from %s', worker.hostname)
-        self._call_handlers(self.on.node_lost, worker)
+        pass
 
     def _call_handlers(self, handlers, *args, **kwargs):
         for handler in handlers:
@@ -159,14 +119,7 @@ class Gossip(bootsteps.ConsumerStep):
         self._tref = self.timer.call_repeatedly(self.interval, self.periodic)
 
     def periodic(self):
-        workers = self.state.workers
-        dirty = set()
-        for worker in workers.values():
-            if not worker.alive:
-                dirty.add(worker)
-                self.on_node_lost(worker)
-        for worker in dirty:
-            workers.pop(worker.hostname, None)
+        pass
 
     def get_consumers(self, channel):
         self.register_timer()

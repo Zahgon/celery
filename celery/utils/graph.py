@@ -84,13 +84,7 @@ class DependencyGraph:
 
     def valency_of(self, obj):
         """Return the valency (degree) of a vertex in the graph."""
-        try:
-            l = [len(self[obj])]
-        except KeyError:
-            return 0
-        for node in self[obj]:
-            l.append(self.valency_of(node))
-        return sum(l)
+        pass
 
     def update(self, it):
         """Update graph with data from a list of ``(obj, deps)`` tuples."""
@@ -103,7 +97,7 @@ class DependencyGraph:
 
     def edges(self):
         """Return generator that yields for all edges in the graph."""
-        return (obj for obj, adj in self.items() if adj)
+        pass
 
     def _khan62(self):
         """Perform Khan's simple topological sort algorithm from '62.
@@ -190,7 +184,7 @@ class DependencyGraph:
         P(draw.tail())
 
     def format(self, obj):
-        return self.formatter(obj) if self.formatter else obj
+        pass
 
     def __iter__(self):
         return iter(self.adjacent)
@@ -205,20 +199,14 @@ class DependencyGraph:
         return obj in self.adjacent
 
     def _iterate_items(self):
-        return self.adjacent.items()
+        pass
     items = iteritems = _iterate_items
 
     def __repr__(self):
         return '\n'.join(self.repr_node(N) for N in self)
 
     def repr_node(self, obj, level=1, fmt='{0}({1})'):
-        output = [fmt.format(obj, self.valency_of(obj))]
-        if obj in self:
-            for other in self[obj]:
-                d = fmt.format(other, self.valency_of(other))
-                output.append('     ' * level + d)
-                output.extend(self.repr_node(other, level + 1).split('\n')[1:])
-        return '\n'.join(output)
+        pass
 
 
 class GraphFormatter:
@@ -284,7 +272,7 @@ class GraphFormatter:
         return self.draw_node(obj, self.node_scheme, attrs)
 
     def terminal_node(self, obj, **attrs):
-        return self.draw_node(obj, self.term_scheme, attrs)
+        pass
 
     def edge(self, a, b, **attrs):
         return self.draw_edge(a, b, **attrs)

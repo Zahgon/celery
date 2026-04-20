@@ -376,16 +376,11 @@ NAMESPACES = Namespace(
 
 
 def _flatten_keys(ns, key, opt):
-    return [(ns + key, opt)]
+    pass
 
 
 def _to_compat(ns, key, opt):
-    if opt.old:
-        return [
-            (oldkey.format(key).upper(), ns + key, opt)
-            for oldkey in opt.old
-        ]
-    return [((ns + key).upper(), ns + key, opt)]
+    pass
 
 
 def flatten(d, root='', keyfilter=_flatten_keys):

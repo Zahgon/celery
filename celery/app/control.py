@@ -62,10 +62,7 @@ def flatten_reply(reply):
 
 
 def _after_fork_cleanup_control(control):
-    try:
-        control._after_fork()
-    except Exception as exc:  # pylint: disable=broad-except
-        logger.info('after fork raised exception: %r', exc, exc_info=1)
+    pass
 
 
 class Inspect:
@@ -120,7 +117,7 @@ class Inspect:
         Returns:
             Dict: Dictionary ``{HOSTNAME: {'ok': REPORT_STRING}}``.
         """
-        return self._request('report')
+        pass
 
     def clock(self):
         """Get the Clock value on workers.
@@ -131,7 +128,7 @@ class Inspect:
         Returns:
             Dict: Dictionary ``{HOSTNAME: CLOCK_VALUE}``.
         """
-        return self._request('clock')
+        pass
 
     def active(self, safe=None):
         """Return list of tasks currently executed by workers.
@@ -146,7 +143,7 @@ class Inspect:
             For ``TASK_INFO`` details see :func:`query_task` return value.
 
         """
-        return self._request('active', safe=safe)
+        pass
 
     def scheduled(self, safe=None):
         """Return list of scheduled tasks with details.
@@ -163,7 +160,7 @@ class Inspect:
         See Also:
             For more details about ``TASK_INFO``  see :func:`query_task` return value.
         """
-        return self._request('scheduled')
+        pass
 
     def reserved(self, safe=None):
         """Return list of currently reserved tasks, not including scheduled/active.
@@ -174,7 +171,7 @@ class Inspect:
         See Also:
             For ``TASK_INFO`` details see :func:`query_task` return value.
         """
-        return self._request('reserved')
+        pass
 
     def stats(self):
         """Return statistics of worker.
@@ -240,7 +237,7 @@ class Inspect:
         * ``total`` - Map of task names and the total number of tasks with that type
           the worker has accepted since start-up.
         """
-        return self._request('stats')
+        pass
 
     def revoked(self):
         """Return list of revoked tasks.
@@ -268,7 +265,7 @@ class Inspect:
         Returns:
             Dict: Dictionary ``{HOSTNAME: [TASK1_INFO, ...]}``.
         """
-        return self._request('registered', taskinfoitems=taskinfoitems)
+        pass
     registered_tasks = registered
 
     def ping(self, destination=None):
@@ -335,7 +332,7 @@ class Inspect:
             The ``queue_info`` fields are RabbitMQ/AMQP oriented.
             Not all fields applies for other transports.
         """
-        return self._request('active_queues')
+        pass
 
     def query_task(self, *ids):
         """Return detail of tasks currently executed by workers.
@@ -363,11 +360,7 @@ class Inspect:
             * ``worker_pid`` - PID of worker processing the task
 
         """
-        # signature used be unary: query_task(ids=[id1, id2])
-        # we need this to preserve backward compatibility.
-        if len(ids) == 1 and isinstance(ids[0], (list, tuple)):
-            ids = ids[0]
-        return self._request('query_task', ids=ids)
+        pass
 
     def conf(self, with_defaults=False):
         """Return configuration of each worker.
@@ -383,7 +376,7 @@ class Inspect:
             ``WORKER_CONFIGURATION`` is a dictionary containing current configuration options.
             See :ref:`configuration` for possible values.
         """
-        return self._request('conf', with_defaults=with_defaults)
+        pass
 
     def hello(self, from_node, revoked=None):
         return self._request('hello', from_node=from_node, revoked=revoked)
@@ -394,7 +387,7 @@ class Inspect:
         Note:
             Requires the psutils library.
         """
-        return self._request('memsample')
+        pass
 
     def memdump(self, samples=10):
         """Dump statistics of previous memsample requests.
@@ -402,7 +395,7 @@ class Inspect:
         Note:
             Requires the psutils library.
         """
-        return self._request('memdump', samples=samples)
+        pass
 
     def objgraph(self, type='Request', n=200, max_depth=10):
         """Create graph of uncollected objects (memory-leak debugging).
@@ -418,7 +411,7 @@ class Inspect:
         Note:
             Requires the objgraph library.
         """
-        return self._request('objgraph', num=n, max_depth=max_depth, type=type)
+        pass
 
 
 class Control:
@@ -450,7 +443,7 @@ class Control:
         register_after_fork(self, _after_fork_cleanup_control)
 
     def _after_fork(self):
-        del self.mailbox.producer_pool
+        pass
 
     @cached_property
     def inspect(self):
@@ -476,12 +469,7 @@ class Control:
     discard_all = purge
 
     def election(self, id, topic, action=None, connection=None):
-        self.broadcast(
-            'election', connection=connection, destination=None,
-            arguments={
-                'id': id, 'topic': topic, 'action': action,
-            },
-        )
+        pass
 
     def revoke(self, task_id, destination=None, terminate=False,
                signal=TERM_SIGNAME, **kwargs):
@@ -525,23 +513,7 @@ class Control:
         See Also:
             :meth:`broadcast` for supported keyword arguments.
         """
-        result = self.broadcast('revoke_by_stamped_headers', destination=destination, arguments={
-            'headers': headers,
-            'terminate': terminate,
-            'signal': signal,
-        }, **kwargs)
-
-        task_ids = set()
-        if result:
-            for host in result:
-                for response in host.values():
-                    if isinstance(response['ok'], set):
-                        task_ids.update(response['ok'])
-
-        if task_ids:
-            return self.revoke(list(task_ids), destination=destination, terminate=terminate, signal=signal, **kwargs)
-        else:
-            return result
+        pass
 
     def terminate(self, task_id,
                   destination=None, signal=TERM_SIGNAME, **kwargs):
@@ -586,14 +558,7 @@ class Control:
         See Also:
             :meth:`broadcast` for supported keyword arguments.
         """
-        return self.broadcast(
-            'rate_limit',
-            destination=destination,
-            arguments={
-                'task_name': task_name,
-                'rate_limit': rate_limit,
-            },
-            **kwargs)
+        pass
 
     def add_consumer(self, queue,
                      exchange=None, exchange_type='direct', routing_key=None,
@@ -620,17 +585,7 @@ class Control:
         See Also:
             :meth:`broadcast` for supported keyword arguments.
         """
-        return self.broadcast(
-            'add_consumer',
-            destination=destination,
-            arguments=dict({
-                'queue': queue,
-                'exchange': exchange,
-                'exchange_type': exchange_type,
-                'routing_key': routing_key,
-            }, **options or {}),
-            **kwargs
-        )
+        pass
 
     def cancel_consumer(self, queue, destination=None, **kwargs):
         """Tell all (or specific) workers to stop consuming from ``queue``.
@@ -638,9 +593,7 @@ class Control:
         See Also:
             Supports the same arguments as :meth:`broadcast`.
         """
-        return self.broadcast(
-            'cancel_consumer', destination=destination,
-            arguments={'queue': queue}, **kwargs)
+        pass
 
     def time_limit(self, task_name, soft=None, hard=None,
                    destination=None, **kwargs):
@@ -652,15 +605,7 @@ class Control:
             hard (float): New hard time limit (in seconds).
             **kwargs (Any): arguments passed on to :meth:`broadcast`.
         """
-        return self.broadcast(
-            'time_limit',
-            arguments={
-                'task_name': task_name,
-                'hard': hard,
-                'soft': soft,
-            },
-            destination=destination,
-            **kwargs)
+        pass
 
     def enable_events(self, destination=None, **kwargs):
         """Tell all (or specific) workers to enable events.
@@ -668,8 +613,7 @@ class Control:
         See Also:
             Supports the same arguments as :meth:`broadcast`.
         """
-        return self.broadcast(
-            'enable_events', arguments={}, destination=destination, **kwargs)
+        pass
 
     def disable_events(self, destination=None, **kwargs):
         """Tell all (or specific) workers to disable events.
@@ -677,8 +621,7 @@ class Control:
         See Also:
             Supports the same arguments as :meth:`broadcast`.
         """
-        return self.broadcast(
-            'disable_events', arguments={}, destination=destination, **kwargs)
+        pass
 
     def pool_grow(self, n=1, destination=None, **kwargs):
         """Tell all (or specific) workers to grow the pool by ``n``.
@@ -686,8 +629,7 @@ class Control:
         See Also:
             Supports the same arguments as :meth:`broadcast`.
         """
-        return self.broadcast(
-            'pool_grow', arguments={'n': n}, destination=destination, **kwargs)
+        pass
 
     def pool_shrink(self, n=1, destination=None, **kwargs):
         """Tell all (or specific) workers to shrink the pool by ``n``.
@@ -695,9 +637,7 @@ class Control:
         See Also:
             Supports the same arguments as :meth:`broadcast`.
         """
-        return self.broadcast(
-            'pool_shrink', arguments={'n': n},
-            destination=destination, **kwargs)
+        pass
 
     def autoscale(self, max, min, destination=None, **kwargs):
         """Change worker(s) autoscale setting.
@@ -732,14 +672,7 @@ class Control:
         See Also:
             Supports the same arguments as :meth:`broadcast`
         """
-        return self.broadcast(
-            'pool_restart',
-            arguments={
-                'modules': modules,
-                'reload': reload,
-                'reloader': reloader,
-            },
-            destination=destination, **kwargs)
+        pass
 
     def heartbeat(self, destination=None, **kwargs):
         """Tell worker(s) to send a heartbeat immediately.

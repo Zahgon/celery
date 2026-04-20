@@ -172,7 +172,7 @@ class DictAttribute:
 
     def _iterate_keys(self):
         # type: () -> Iterable
-        return iter(dir(self.obj))
+        pass
     iterkeys = _iterate_keys
 
     def __iter__(self):
@@ -181,14 +181,12 @@ class DictAttribute:
 
     def _iterate_items(self):
         # type: () -> Iterable
-        for key in self._iterate_keys():
-            yield key, getattr(self.obj, key)
+        pass
     iteritems = _iterate_items
 
     def _iterate_values(self):
         # type: () -> Iterable
-        for key in self._iterate_keys():
-            yield getattr(self.obj, key)
+        pass
     itervalues = _iterate_values
 
     items = _iterate_items
@@ -312,7 +310,7 @@ class ChainMap(MutableMapping):
     def fromkeys(cls, iterable, *args):
         # type: (type, Iterable, *Any) -> 'ChainMap'
         """Create a ChainMap with a single dict created from the iterable."""
-        return cls(dict.fromkeys(iterable, *args))
+        pass
 
     def copy(self):
         # type: () -> 'ChainMap'
@@ -325,21 +323,21 @@ class ChainMap(MutableMapping):
         # changes take precedence.
         # pylint: disable=bad-reversed-sequence
         #   Someone should teach pylint about properties.
-        return chain(*(op(d) for d in reversed(self.maps)))
+        pass
 
     def _iterate_keys(self):
         # type: () -> Iterable
-        return uniq(self._iter(lambda d: d.keys()))
+        pass
     iterkeys = _iterate_keys
 
     def _iterate_items(self):
         # type: () -> Iterable
-        return ((key, self[key]) for key in self)
+        pass
     iteritems = _iterate_items
 
     def _iterate_values(self):
         # type: () -> Iterable
-        return (self[key] for key in self)
+        pass
     itervalues = _iterate_values
 
     def bind_to(self, callback):
@@ -375,11 +373,7 @@ class ConfigurationView(ChainMap, AttributeDictMixin):
 
     def _to_keys(self, key):
         # type: (str) -> Sequence[str]
-        prefix = self.prefix
-        if prefix:
-            pkey = prefix + key if not key.startswith(prefix) else key
-            return match_case(pkey, prefix), key
-        return key,
+        pass
 
     def __getitem__(self, key):
         # type: (str) -> Any
@@ -427,15 +421,7 @@ class ConfigurationView(ChainMap, AttributeDictMixin):
 
     def swap_with(self, other):
         # type: (ConfigurationView) -> None
-        changes = other.__dict__['changes']
-        defaults = other.__dict__['defaults']
-        self.__dict__.update(
-            changes=changes,
-            defaults=defaults,
-            key_t=other.__dict__['key_t'],
-            prefix=other.__dict__['prefix'],
-            maps=[changes] + defaults
-        )
+        pass
 
 
 class LimitedSet:
@@ -659,7 +645,7 @@ class LimitedSet:
     def _heap_overload(self):
         # type: () -> float
         """Compute how much is heap bigger than data [percents]."""
-        return len(self._heap) * 100 / max(len(self._data), 1) - 100
+        pass
 
 
 MutableSet.register(LimitedSet)
@@ -672,7 +658,7 @@ class Evictable:
 
     def evict(self) -> None:
         """Force evict until maxsize is enforced."""
-        self._evict(range=count)
+        pass
 
     def _evict(self, limit: int = 100, range=range) -> None:
         try:
@@ -756,7 +742,7 @@ class Messagebuffer(Evictable):
     @property
     def _evictcount(self):
         # type: () -> int
-        return len(self)
+        pass
 
 
 Sequence.register(Messagebuffer)
@@ -830,7 +816,7 @@ class BufferMap(OrderedDict, Evictable):
 
     def _LRUpop(self, *default):
         # type: (*Any) -> Any
-        return self[self._LRUkey()].take(*default)
+        pass
 
     def _pop_to_evict(self):
         # type: () -> None
@@ -860,4 +846,4 @@ class BufferMap(OrderedDict, Evictable):
     @property
     def _evictcount(self):
         # type: () -> int
-        return self.total
+        pass

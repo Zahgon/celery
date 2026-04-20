@@ -96,53 +96,21 @@ class CosmosDBSQLBackend(KeyValueStoreBackend):
         the database and collection are initialized if they don't yet exist.
 
         """
-        connection_policy = ConnectionPolicy()
-        connection_policy.RetryOptions = RetryOptions(
-            max_retry_attempt_count=self._max_retry_attempts,
-            max_wait_time_in_seconds=self._max_retry_wait_time)
-
-        client = DocumentClient(
-            self._endpoint,
-            {"masterKey": self._key},
-            connection_policy=connection_policy,
-            consistency_level=self._consistency_level)
-
-        self._create_database_if_not_exists(client)
-        self._create_collection_if_not_exists(client)
-
-        return client
+        pass
 
     def _create_database_if_not_exists(self, client):
-        try:
-            client.CreateDatabase({"id": self._database_name})
-        except HTTPFailure as ex:
-            if ex.status_code != ERROR_EXISTS:
-                raise
-        else:
-            LOGGER.info("Created CosmosDB database %s",
-                        self._database_name)
+        pass
 
     def _create_collection_if_not_exists(self, client):
-        try:
-            client.CreateCollection(
-                self._database_link,
-                {"id": self._collection_name,
-                 "partitionKey": {"paths": ["/id"],
-                                  "kind": PartitionKind.Hash}})
-        except HTTPFailure as ex:
-            if ex.status_code != ERROR_EXISTS:
-                raise
-        else:
-            LOGGER.info("Created CosmosDB collection %s/%s",
-                        self._database_name, self._collection_name)
+        pass
 
     @cached_property
     def _database_link(self):
-        return "dbs/" + self._database_name
+        pass
 
     @cached_property
     def _collection_link(self):
-        return self._database_link + "/colls/" + self._collection_name
+        pass
 
     def _get_document_link(self, key):
         return self._collection_link + "/docs/" + key
@@ -184,14 +152,7 @@ class CosmosDBSQLBackend(KeyValueStoreBackend):
               value: The value to store.
 
         """
-        key = bytes_to_str(key)
-        LOGGER.debug("Creating CosmosDB document %s/%s/%s",
-                     self._database_name, self._collection_name, key)
-
-        self._client.CreateDocument(
-            self._collection_link,
-            {"id": key, "value": value},
-            self._get_partition_key(key))
+        pass
 
     def mget(self, keys):
         """Read all the values for the provided keys.

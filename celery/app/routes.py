@@ -104,19 +104,11 @@ class Router:
                 return route
 
     def query_router(self, router, task, args, kwargs, options, task_type):
-        router = maybe_evaluate(router)
-        if hasattr(router, 'route_for_task'):
-            # pre 4.0 router class
-            return router.route_for_task(task, args, kwargs)
-        return router(task, args, kwargs, options, task=task_type)
+        pass
 
 
 def expand_router_string(router):
-    router = symbol_by_name(router)
-    if hasattr(router, 'route_for_task'):
-        # need to instantiate pre 4.0 router classes
-        router = router()
-    return router
+    pass
 
 
 def prepare(routes):

@@ -65,7 +65,7 @@ Q_EXPIRES = """
 
 
 def buf_t(x):
-    return bytes(x, 'utf8')
+    pass
 
 
 class CassandraBackend(BaseBackend):
@@ -214,16 +214,7 @@ class CassandraBackend(BaseBackend):
     def _store_result(self, task_id, result, state,
                       traceback=None, request=None, **kwargs):
         """Store return value and state of an executed task."""
-        self._get_connection(write=True)
-
-        self._session.execute(self._write_stmt, (
-            task_id,
-            state,
-            buf_t(self.encode(result)),
-            self.app.now(),
-            buf_t(self.encode(traceback)),
-            buf_t(self.encode(self.current_task_children(request)))
-        ))
+        pass
 
     def as_uri(self, include_password=True):
         return 'cassandra://'

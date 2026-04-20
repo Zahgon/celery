@@ -111,11 +111,11 @@ class ArangoDbBackend(KeyValueStoreBackend):
     @property
     def db(self):
         """Database Object to the given database."""
-        return self.connection[self.database]
+        pass
 
     @cached_property
     def expires_delta(self):
-        return timedelta(seconds=0 if self.expires is None else self.expires)
+        pass
 
     def get(self, key):
         if key is None:
@@ -131,18 +131,7 @@ class ArangoDbBackend(KeyValueStoreBackend):
         return next(query) if len(query) > 0 else None
 
     def set(self, key, value):
-        self.db.AQLQuery(
-            """
-            UPSERT {_key: @key}
-            INSERT {_key: @key, task: @value}
-            UPDATE {task: @value} IN @@collection
-            """,
-            bindVars={
-                "@collection": self.collection,
-                "key": key,
-                "value": value,
-            },
-        )
+        pass
 
     def mget(self, keys):
         if keys is None:
@@ -174,17 +163,4 @@ class ArangoDbBackend(KeyValueStoreBackend):
         )
 
     def cleanup(self):
-        if not self.expires:
-            return
-        checkpoint = (self.app.now() - self.expires_delta).isoformat()
-        self.db.AQLQuery(
-            """
-            FOR record IN @@collection
-                FILTER record.task.date_done < @checkpoint
-                REMOVE record IN @@collection
-            """,
-            bindVars={
-                "@collection": self.collection,
-                "checkpoint": checkpoint,
-            },
-        )
+        pass

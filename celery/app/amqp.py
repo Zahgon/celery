@@ -145,14 +145,7 @@ class Queues(dict):
 
     def format(self, indent=0, indent_first=True):
         """Format routing table into string for log dumps."""
-        active = self.consume_from
-        if not active:
-            return ''
-        info = [QUEUE_FORMAT.strip().format(q)
-                for _, q in sorted(active.items())]
-        if indent_first:
-            return textindent('\n'.join(info), indent)
-        return info[0] + '\n' + textindent('\n'.join(info[1:]), indent)
+        pass
 
     def select_add(self, queue, **kwargs):
         """Add new task queue that'll be consumed from.
@@ -193,21 +186,7 @@ class Queues(dict):
                 self._consume_from.pop(queue, None)
 
     def new_missing(self, name):
-        queue_arguments = None
-        if self.create_missing_queue_type and self.create_missing_queue_type != "classic":
-            if self.create_missing_queue_type not in ("classic", "quorum"):
-                raise ValueError(
-                    f"Invalid queue type '{self.create_missing_queue_type}'. "
-                    "Valid types are 'classic' and 'quorum'."
-                )
-            queue_arguments = {"x-queue-type": self.create_missing_queue_type}
-
-        if self.create_missing_queue_exchange_type:
-            exchange = Exchange(name, self.create_missing_queue_exchange_type)
-        else:
-            exchange = self.autoexchange(name)
-
-        return Queue(name, exchange, name, queue_arguments=queue_arguments)
+        pass
 
     @property
     def consume_from(self):
@@ -327,89 +306,7 @@ class AMQP:
                    origin=None, ignore_result=False, argsrepr=None, kwargsrepr=None, stamped_headers=None,
                    replaced_task_nesting=0, **options):
 
-        args = args or ()
-        kwargs = kwargs or {}
-        if not isinstance(args, (list, tuple)):
-            raise TypeError('task args must be a list or tuple')
-        if not isinstance(kwargs, Mapping):
-            raise TypeError('task keyword arguments must be a mapping')
-        if countdown:  # convert countdown to ETA
-            self._verify_seconds(countdown, 'countdown')
-            now = now or self.app.now()
-            timezone = timezone or self.app.timezone
-            eta = maybe_make_aware(
-                now + timedelta(seconds=countdown), tz=timezone,
-            )
-        if isinstance(expires, numbers.Real):
-            self._verify_seconds(expires, 'expires')
-            now = now or self.app.now()
-            timezone = timezone or self.app.timezone
-            expires = maybe_make_aware(
-                now + timedelta(seconds=expires), tz=timezone,
-            )
-        if not isinstance(eta, str):
-            eta = eta and eta.isoformat()
-        # If we retry a task `expires` will already be ISO8601-formatted.
-        if not isinstance(expires, str):
-            expires = expires and expires.isoformat()
-
-        if argsrepr is None:
-            argsrepr = saferepr(args, self.argsrepr_maxsize)
-        if kwargsrepr is None:
-            kwargsrepr = saferepr(kwargs, self.kwargsrepr_maxsize)
-
-        if not root_id:  # empty root_id defaults to task_id
-            root_id = task_id
-
-        stamps = {header: options[header] for header in stamped_headers or []}
-        headers = {
-            'lang': 'py',
-            'task': name,
-            'id': task_id,
-            'shadow': shadow,
-            'eta': eta,
-            'expires': expires,
-            'group': group_id,
-            'group_index': group_index,
-            'retries': retries,
-            'timelimit': [time_limit, soft_time_limit],
-            'root_id': root_id,
-            'parent_id': parent_id,
-            'argsrepr': argsrepr,
-            'kwargsrepr': kwargsrepr,
-            'origin': origin or anon_nodename(),
-            'ignore_result': ignore_result,
-            'replaced_task_nesting': replaced_task_nesting,
-            'stamped_headers': stamped_headers,
-            'stamps': stamps,
-        }
-
-        return task_message(
-            headers=headers,
-            properties={
-                'correlation_id': task_id,
-                'reply_to': reply_to or '',
-            },
-            body=(
-                args, kwargs, {
-                    'callbacks': callbacks,
-                    'errbacks': errbacks,
-                    'chain': chain,
-                    'chord': chord,
-                },
-            ),
-            sent_event={
-                'uuid': task_id,
-                'root_id': root_id,
-                'parent_id': parent_id,
-                'name': name,
-                'args': argsrepr,
-                'kwargs': kwargsrepr,
-                'retries': retries,
-                'eta': eta,
-                'expires': expires,
-            } if create_sent_event else None,
-        )
+        pass
 
     def as_task_v1(self, task_id, name, args=None, kwargs=None,
                    countdown=None, eta=None, group_id=None, group_index=None,
@@ -419,62 +316,10 @@ class AMQP:
                    create_sent_event=False, root_id=None, parent_id=None,
                    shadow=None, now=None, timezone=None,
                    **compat_kwargs):
-        args = args or ()
-        kwargs = kwargs or {}
-        utc = self.utc
-        if not isinstance(args, (list, tuple)):
-            raise TypeError('task args must be a list or tuple')
-        if not isinstance(kwargs, Mapping):
-            raise TypeError('task keyword arguments must be a mapping')
-        if countdown:  # convert countdown to ETA
-            self._verify_seconds(countdown, 'countdown')
-            now = now or self.app.now()
-            eta = now + timedelta(seconds=countdown)
-        if isinstance(expires, numbers.Real):
-            self._verify_seconds(expires, 'expires')
-            now = now or self.app.now()
-            expires = now + timedelta(seconds=expires)
-        eta = eta and eta.isoformat()
-        expires = expires and expires.isoformat()
-
-        return task_message(
-            headers={},
-            properties={
-                'correlation_id': task_id,
-                'reply_to': reply_to or '',
-            },
-            body={
-                'task': name,
-                'id': task_id,
-                'args': args,
-                'kwargs': kwargs,
-                'group': group_id,
-                'group_index': group_index,
-                'retries': retries,
-                'eta': eta,
-                'expires': expires,
-                'utc': utc,
-                'callbacks': callbacks,
-                'errbacks': errbacks,
-                'timelimit': (time_limit, soft_time_limit),
-                'taskset': group_id,
-                'chord': chord,
-            },
-            sent_event={
-                'uuid': task_id,
-                'name': name,
-                'args': saferepr(args),
-                'kwargs': saferepr(kwargs),
-                'retries': retries,
-                'eta': eta,
-                'expires': expires,
-            } if create_sent_event else None,
-        )
+        pass
 
     def _verify_seconds(self, s, what):
-        if s < INT_MIN:
-            raise ValueError(f'{what} is out of range: {s!r}')
-        return s
+        pass
 
     def _create_task_sender(self):
         default_retry = self.app.conf.task_publish_retry
@@ -601,16 +446,16 @@ class AMQP:
 
     @cached_property
     def default_queue(self):
-        return self.queues[self.app.conf.task_default_queue]
+        pass
 
     @cached_property
     def queues(self):
         """Queue name⇒ declaration mapping."""
-        return self.Queues(self.app.conf.task_queues)
+        pass
 
     @queues.setter
     def queues(self, queues):
-        return self.Queues(queues)
+        pass
 
     @property
     def routes(self):
@@ -620,38 +465,30 @@ class AMQP:
 
     @cached_property
     def router(self):
-        return self.Router()
+        pass
 
     @router.setter
     def router(self, value):
-        return value
+        pass
 
     @property
     def producer_pool(self):
-        if self._producer_pool is None:
-            self._producer_pool = pools.producers[
-                self.app.connection_for_write()]
-            self._producer_pool.limit = self.app.pool.limit
-        return self._producer_pool
+        pass
     publisher_pool = producer_pool  # compat alias
 
     @cached_property
     def default_exchange(self):
-        return Exchange(self.app.conf.task_default_exchange,
-                        self.app.conf.task_default_exchange_type)
+        pass
 
     @cached_property
     def utc(self):
-        return self.app.conf.enable_utc
+        pass
 
     @cached_property
     def _event_dispatcher(self):
         # We call Dispatcher.publish with a custom producer
         # so don't need the dispatcher to be enabled.
-        return self.app.events.Dispatcher(enabled=False)
+        pass
 
     def _handle_conf_update(self, *args, **kwargs):
-        if ('task_routes' in kwargs or 'task_routes' in args):
-            self.flush_routes()
-            self.router = self.Router()
-        return
+        pass

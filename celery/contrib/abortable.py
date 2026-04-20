@@ -109,7 +109,7 @@ class AbortableAsyncResult(AsyncResult):
 
     def is_aborted(self):
         """Return :const:`True` if the task is (being) aborted."""
-        return self.state == ABORTED
+        pass
 
     def abort(self):
         """Set the state of the task to :const:`ABORTED`.
@@ -121,10 +121,7 @@ class AbortableAsyncResult(AsyncResult):
             Be aware that invoking this method does not guarantee when the
             task will be aborted (or even if the task will be aborted at all).
         """
-        # TODO: store_result requires all four arguments to be set,
-        # but only state should be updated here
-        return self.backend.store_result(self.id, result=None,
-                                         state=ABORTED, traceback=None)
+        pass
 
 
 class AbortableTask(Task):
@@ -158,8 +155,4 @@ class AbortableTask(Task):
         between calling it regularly (for responsiveness), but not too
         often (for performance).
         """
-        task_id = kwargs.get('task_id', self.request.id)
-        result = self.AsyncResult(task_id)
-        if not isinstance(result, AbortableAsyncResult):
-            return False
-        return result.is_aborted()
+        pass

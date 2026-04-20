@@ -46,7 +46,7 @@ class EventletAdaptedEvent:
         return self.evt.ready()
 
     def set(self):
-        return self.evt.send()
+        pass
 
     def wait(self, timeout=None):
         return self.evt.wait(timeout)
@@ -58,8 +58,7 @@ drainers = {}
 def register_drainer(name):
     """Decorator used to register a new result drainer type."""
     def _inner(cls):
-        drainers[name] = cls
-        return cls
+        pass
     return _inner
 
 
@@ -226,36 +225,10 @@ class AsyncBackendMixin:
     """Mixin for backends that enables the async API."""
 
     def _collect_into(self, result, bucket):
-        self.result_consumer.buckets[result] = bucket
+        pass
 
     def iter_native(self, result, no_ack=True, **kwargs):
-        self._ensure_not_eager()
-
-        results = result.results
-        if not results:
-            raise StopIteration()
-
-        # we tell the result consumer to put consumed results
-        # into these buckets.
-        bucket = deque()
-        for node in results:
-            if not hasattr(node, '_cache'):
-                bucket.append(node)
-            elif node._cache:
-                bucket.append(node)
-            else:
-                self._collect_into(node, bucket)
-
-        for _ in self._wait_for_pending(result, no_ack=no_ack, **kwargs):
-            while bucket:
-                node = bucket.popleft()
-                if not hasattr(node, '_cache'):
-                    yield node.id, node.children
-                else:
-                    yield node.id, node._cache
-        while bucket:
-            node = bucket.popleft()
-            yield node.id, node._cache
+        pass
 
     def add_pending_result(self, result, weak=False, start_drainer=True):
         if start_drainer:
@@ -276,21 +249,16 @@ class AsyncBackendMixin:
             self.result_consumer.consume_from(task_id)
 
     def add_pending_results(self, results, weak=False):
-        self.result_consumer.drainer.start()
-        return [self.add_pending_result(result, weak=weak, start_drainer=False)
-                for result in results]
+        pass
 
     def remove_pending_result(self, result):
-        self._remove_pending_result(result.id)
-        self.on_result_fulfilled(result)
-        return result
+        pass
 
     def _remove_pending_result(self, task_id):
-        for mapping in self._pending_results:
-            mapping.pop(task_id, None)
+        pass
 
     def on_result_fulfilled(self, result):
-        self.result_consumer.cancel_for(result.id)
+        pass
 
     def wait_for_pending(self, result,
                          callback=None, propagate=True, **kwargs):
@@ -310,7 +278,7 @@ class AsyncBackendMixin:
 
     @property
     def is_async(self):
-        return True
+        pass
 
 
 class BaseResultConsumer:
@@ -376,10 +344,7 @@ class BaseResultConsumer:
         raise NotImplementedError()
 
     def _after_fork(self):
-        self.buckets.clear()
-        self.buckets = WeakKeyDictionary()
-        self.on_message = None
-        self.on_after_fork()
+        pass
 
     def on_after_fork(self):
         pass

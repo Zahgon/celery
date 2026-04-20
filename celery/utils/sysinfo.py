@@ -33,18 +33,16 @@ class df:
 
     @property
     def total_blocks(self) -> float:
-        return self.stat.f_blocks * self.stat.f_frsize / 1024
+        pass
 
     @property
     def available(self) -> float:
-        return self.stat.f_bavail * self.stat.f_frsize / 1024
+        pass
 
     @property
     def capacity(self) -> int:
-        avail = self.stat.f_bavail
-        used = self.stat.f_blocks - self.stat.f_bfree
-        return int(ceil(used * 100.0 / (used + avail) + 0.5))
+        pass
 
     @cached_property
     def stat(self) -> os.statvfs_result:
-        return os.statvfs(os.path.abspath(self.path))
+        pass

@@ -117,7 +117,7 @@ class Blueprint:
             logger.debug('^-- substep ok')
 
     def human_state(self):
-        return self.state_to_name[self.state or 0]
+        pass
 
     def info(self, parent):
         info = {}
@@ -260,7 +260,7 @@ class Blueprint:
 
     @property
     def alias(self):
-        return _label(self)
+        pass
 
 
 class StepType(type):
@@ -346,7 +346,7 @@ class Step(metaclass=StepType):
 
     @property
     def alias(self):
-        return self.label or _label(self)
+        pass
 
     def info(self, obj):
         pass

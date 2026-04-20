@@ -32,7 +32,7 @@ class _task_counts(list):
 
     @property
     def format(self):
-        return '\n'.join('{}: {}'.format(*i) for i in self)
+        pass
 
 
 def task_info(line):
@@ -96,18 +96,10 @@ class Audit:
             self.prev_line = None
 
     def incomplete_tasks(self):
-        return self.ids ^ self.ready
+        pass
 
     def report(self):
-        return {
-            'task': {
-                'types': _task_counts(self.task_types.most_common()),
-                'total': len(self.ids),
-                'errors': self.task_errors,
-                'completed': len(self.ready),
-                'succeeded': len(self.ready) - self.task_errors,
-            }
-        }
+        pass
 
 
 @click.group()
@@ -121,33 +113,28 @@ def logtool(ctx):
 @click.argument('files', nargs=-1)
 @click.pass_context
 def stats(ctx, files):
-    ctx.obj.echo(REPORT_FORMAT.format(
-        **Audit().run(files).report()
-    ))
+    pass
 
 
 @logtool.command(cls=CeleryCommand)
 @click.argument('files', nargs=-1)
 @click.pass_context
 def traces(ctx, files):
-    Audit(on_trace=ctx.obj.echo).run(files)
+    pass
 
 
 @logtool.command(cls=CeleryCommand)
 @click.argument('files', nargs=-1)
 @click.pass_context
 def errors(ctx, files):
-    Audit(on_task_error=lambda line, *_: ctx.obj.echo(line)).run(files)
+    pass
 
 
 @logtool.command(cls=CeleryCommand)
 @click.argument('files', nargs=-1)
 @click.pass_context
 def incomplete(ctx, files):
-    audit = Audit()
-    audit.run(files)
-    for task_id in audit.incomplete_tasks():
-        ctx.obj.echo(f'Did not complete: {task_id}')
+    pass
 
 
 @logtool.command(cls=CeleryCommand)

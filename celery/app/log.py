@@ -33,14 +33,7 @@ class TaskFormatter(ColorFormatter):
     """Formatter for tasks, adding the task name and id."""
 
     def format(self, record):
-        task = get_current_task()
-        if task and task.request:
-            record.__dict__.update(task_id=task.request.id,
-                                   task_name=task.name)
-        else:
-            record.__dict__.setdefault('task_name', '???')
-            record.__dict__.setdefault('task_id', '???')
-        return super().format(record)
+        pass
 
 
 class Logging:
@@ -237,12 +230,12 @@ class Logging:
             logger, '_rudimentary_setup', False)
 
     def get_default_logger(self, name='celery', **kwargs):
-        return get_logger(name)
+        pass
 
     @class_property
     def already_setup(self):
-        return self._setup
+        pass
 
     @already_setup.setter
     def already_setup(self, was_setup):
-        self._setup = was_setup
+        pass

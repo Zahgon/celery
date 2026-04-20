@@ -72,9 +72,7 @@ EXTRA_INFO_FMT = """
 
 
 def active_thread_count():
-    from threading import enumerate
-    return sum(1 for t in enumerate()
-               if not t.name.startswith('Dummy-'))
+    pass
 
 
 def safe_say(msg, f=sys.__stderr__):
@@ -178,8 +176,7 @@ class Worker(WorkController):
         ])), file=sys.__stdout__, flush=True)
 
     def on_consumer_ready(self, consumer):
-        signals.worker_ready.send(sender=consumer)
-        logger.info('%s ready.', safe_str(self.hostname))
+        pass
 
     def setup_logging(self, colorize=None):
         if colorize is None and self.no_color is not None:
@@ -298,22 +295,7 @@ def _shutdown_handler(worker: Worker, sig='SIGTERM', how='Warm', callback=None, 
         exitcode (int, optional): The exit code to use. Defaults to EX_OK.
         verbose (bool, optional): Whether to print the type of shutdown. Defaults to True.
     """
-    def _handle_request(*args):
-        with in_sighandler():
-            from celery.worker import state
-            if current_process()._name == 'MainProcess':
-                if callback:
-                    callback(worker)
-                if verbose:
-                    safe_say(f'worker: {how} shutdown (MainProcess)', sys.__stdout__)
-                signals.worker_shutting_down.send(
-                    sender=worker.hostname, sig=sig, how=how,
-                    exitcode=exitcode,
-                )
-            setattr(state, {'Warm': 'should_stop',
-                            'Cold': 'should_terminate'}[how], exitcode)
-    _handle_request.__name__ = str(f'worker_{how}')
-    platforms.signals[sig] = _handle_request
+    pass
 
 
 def on_hard_shutdown(worker: Worker):
@@ -331,8 +313,7 @@ def on_hard_shutdown(worker: Worker):
     Raises:
         WorkerTerminate: This exception will be raised in the MainProcess to terminate the worker immediately.
     """
-    from celery.exceptions import WorkerTerminate
-    raise WorkerTerminate(EX_FAILURE)
+    pass
 
 
 def during_soft_shutdown(worker: Worker):
@@ -350,20 +331,7 @@ def during_soft_shutdown(worker: Worker):
     Args:
         worker (Worker): The worker that received the signal.
     """
-    # Replace the signal handler for SIGINT (Ctrl+C) and SIGQUIT (and possibly SIGTERM)
-    # with the hard shutdown handler to terminate the worker immediately by force
-    install_worker_term_hard_handler(worker, sig='SIGINT', callback=on_hard_shutdown, verbose=False)
-    install_worker_term_hard_handler(worker, sig='SIGQUIT', callback=on_hard_shutdown)
-
-    # Cancel all unacked requests and allow the worker to terminate naturally
-    worker.consumer.cancel_active_requests()
-
-    # We get here if the worker was in the middle of the soft (cold) shutdown process,
-    # and the matching signal was received. This can typically happen when the worker is
-    # waiting for tasks to finish, and the user decides to still cancel the running tasks.
-    # We give the worker the last chance to gracefully terminate by letting the soft shutdown
-    # waiting time to finish, which is running in the MainProcess from the previous signal handler call.
-    safe_say('Waiting gracefully for cold shutdown to complete...', sys.__stdout__)
+    pass
 
 
 def on_cold_shutdown(worker: Worker):
@@ -403,31 +371,7 @@ def on_cold_shutdown(worker: Worker):
     Args:
         worker (Worker): The worker that received the signal.
     """
-    safe_say('worker: Hitting Ctrl+C again will terminate all running tasks!', sys.__stdout__)
-
-    # Replace the signal handler for SIGINT (Ctrl+C) and SIGQUIT (and possibly SIGTERM)
-    install_worker_term_hard_handler(worker, sig='SIGINT', callback=during_soft_shutdown)
-    install_worker_term_hard_handler(worker, sig='SIGQUIT', callback=during_soft_shutdown)
-    if REMAP_SIGTERM == "SIGQUIT":
-        install_worker_term_hard_handler(worker, sig='SIGTERM', callback=during_soft_shutdown)
-    # else, SIGTERM will print the _shutdown_handler's message and do nothing, every time it is received..
-
-    # Initiate soft shutdown process (if enabled and tasks are running)
-    worker.wait_for_soft_shutdown()
-
-    # Stop consuming new tasks to prevents requeued messages from being immediately redelivered
-    if worker.consumer.task_consumer:
-        worker.consumer.task_consumer.cancel()
-
-    # Cancel all unacked requests and allow the worker to terminate naturally
-    worker.consumer.cancel_active_requests()
-
-    from celery.worker import state
-    state.should_terminate = True
-
-    # Stop the pool to allow successful tasks call on_success()
-    if worker.consumer.pool:
-        worker.consumer.pool.stop()
+    pass
 
 
 # Allow SIGTERM to be remapped to SIGQUIT to initiate cold shutdown instead of warm shutdown using SIGTERM
@@ -451,9 +395,7 @@ else:  # pragma: no cover
 
 
 def on_SIGINT(worker):
-    safe_say('worker: Hitting Ctrl+C again will initiate cold shutdown, terminating all running tasks!',
-             sys.__stdout__)
-    install_worker_term_hard_handler(worker, sig='SIGINT', verbose=False)
+    pass
 
 
 if not is_jython:  # pragma: no cover
@@ -467,23 +409,14 @@ else:  # pragma: no cover
 
 
 def _reload_current_worker():
-    platforms.close_open_fds([
-        sys.__stdin__, sys.__stdout__, sys.__stderr__,
-    ])
-    os.execv(sys.executable, [sys.executable] + sys.argv)
+    pass
 
 
 def install_worker_restart_handler(worker, sig='SIGHUP'):
 
     def restart_worker_sig_handler(*args):
         """Signal handler restarting the current python program."""
-        set_in_sighandler(True)
-        safe_say(f"Restarting celery worker ({' '.join(sys.argv)})",
-                 sys.__stdout__)
-        import atexit
-        atexit.register(_reload_current_worker)
-        from celery.worker import state
-        state.should_stop = EX_OK
+        pass
     platforms.signals[sig] = restart_worker_sig_handler
 
 
@@ -494,8 +427,7 @@ def install_cry_handler(sig='SIGUSR1'):
 
     def cry_handler(*args):
         """Signal handler logging the stack-trace of all active threads."""
-        with in_sighandler():
-            safe_say(cry())
+        pass
     platforms.signals[sig] = cry_handler
 
 
@@ -504,12 +436,7 @@ def install_rdb_handler(envvar='CELERY_RDBSIG',
 
     def rdb_handler(*args):
         """Signal handler setting a rdb breakpoint at the current frame."""
-        with in_sighandler():
-            from celery.contrib.rdb import _frame, set_trace
-
-            # gevent does not pass standard signal handler args
-            frame = args[1] if args else _frame().f_back
-            set_trace(frame)
+        pass
     if os.environ.get(envvar):
         platforms.signals[sig] = rdb_handler
 
@@ -517,7 +444,5 @@ def install_rdb_handler(envvar='CELERY_RDBSIG',
 def install_HUP_not_supported_handler(worker, sig='SIGHUP'):
 
     def warn_on_HUP_handler(signum, frame):
-        with in_sighandler():
-            safe_say('{sig} not supported: Restarting with {sig} is '
-                     'unstable on this platform!'.format(sig=sig))
+        pass
     platforms.signals[sig] = warn_on_HUP_handler

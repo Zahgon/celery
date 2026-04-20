@@ -55,15 +55,10 @@ class Polaroid:
         pass
 
     def cleanup(self):
-        logger.debug('Cleanup: Running...')
-        self.cleanup_signal.send(sender=self.state)
-        self.on_cleanup()
+        pass
 
     def shutter(self):
-        if self.maxrate is None or self.maxrate.can_consume():
-            logger.debug('Shutter: %s', self.state)
-            self.shutter_signal.send(sender=self.state)
-            self.on_shutter(self.state)
+        pass
 
     def capture(self):
         self.state.freeze_while(self.shutter, clear_after=self.clear_after)

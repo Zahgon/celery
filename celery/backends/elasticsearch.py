@@ -126,43 +126,13 @@ class ElasticsearchBackend(KeyValueStoreBackend):
             )
 
     def _set_with_state(self, key, value, state):
-        body = {
-            'result': value,
-            '@timestamp': '{}Z'.format(
-                datetime.now(timezone.utc).isoformat()[:-9]
-            ),
-        }
-        try:
-            self._index(
-                id=key,
-                body=body,
-            )
-        except elasticsearch.exceptions.ConflictError:
-            # document already exists, update it
-            self._update(key, body, state)
+        pass
 
     def set(self, key, value):
-        return self._set_with_state(key, value, None)
+        pass
 
     def _index(self, id, body, **kwargs):
-        body = {bytes_to_str(k): v for k, v in body.items()}
-        if self.doc_type:
-            return self.server.index(
-                id=bytes_to_str(id),
-                index=self.index,
-                doc_type=self.doc_type,
-                body=body,
-                params={'op_type': 'create'},
-                **kwargs
-            )
-        else:
-            return self.server.index(
-                id=bytes_to_str(id),
-                index=self.index,
-                body=body,
-                params={'op_type': 'create'},
-                **kwargs
-            )
+        pass
 
     def _update(self, id, body, state, **kwargs):
         """Update state in a conflict free manner.
@@ -174,61 +144,7 @@ class ElasticsearchBackend(KeyValueStoreBackend):
         This way, a Retry state cannot override a Success or Failure, and chord_unlock
         will not retry indefinitely.
         """
-        body = {bytes_to_str(k): v for k, v in body.items()}
-
-        try:
-            res_get = self._get(key=id)
-            if not res_get.get('found'):
-                return self._index(id, body, **kwargs)
-            # document disappeared between index and get calls.
-        except elasticsearch.exceptions.NotFoundError:
-            return self._index(id, body, **kwargs)
-
-        try:
-            meta_present_on_backend = self.decode_result(res_get['_source']['result'])
-        except (TypeError, KeyError):
-            pass
-        else:
-            if meta_present_on_backend['status'] == states.SUCCESS:
-                # if stored state is already in success, do nothing
-                return {'result': 'noop'}
-            elif meta_present_on_backend['status'] in states.READY_STATES and state in states.UNREADY_STATES:
-                # if stored state is in ready state and current not, do nothing
-                return {'result': 'noop'}
-
-        # get current sequence number and primary term
-        # https://www.elastic.co/guide/en/elasticsearch/reference/current/optimistic-concurrency-control.html
-        seq_no = res_get.get('_seq_no', 1)
-        prim_term = res_get.get('_primary_term', 1)
-
-        # try to update document with current seq_no and primary_term
-        if self.doc_type:
-            res = self.server.update(
-                id=bytes_to_str(id),
-                index=self.index,
-                doc_type=self.doc_type,
-                body={'doc': body},
-                params={'if_primary_term': prim_term, 'if_seq_no': seq_no},
-                **kwargs
-            )
-        else:
-            res = self.server.update(
-                id=bytes_to_str(id),
-                index=self.index,
-                body={'doc': body},
-                params={'if_primary_term': prim_term, 'if_seq_no': seq_no},
-                **kwargs
-            )
-        # result is elastic search update query result
-        # noop = query did not update any document
-        # updated = at least one document got updated
-        if res['result'] == 'noop':
-            raise elasticsearch.exceptions.ConflictError(
-                "conflicting update occurred concurrently",
-                elastic_transport.ApiResponseMeta(409, "HTTP/1.1",
-                                                  elastic_transport.HttpHeaders(), 0, elastic_transport.NodeConfig(
-                                                      self.scheme, self.host, self.port)), None)
-        return res
+        pass
 
     def encode(self, data):
         if self.es_save_meta_as_text:
@@ -265,19 +181,8 @@ class ElasticsearchBackend(KeyValueStoreBackend):
 
     def _get_server(self):
         """Connect to the Elasticsearch server."""
-        http_auth = None
-        if self.username and self.password:
-            http_auth = (self.username, self.password)
-        return elasticsearch.Elasticsearch(
-            f'{self.scheme}://{self.host}:{self.port}',
-            retry_on_timeout=self.es_retry_on_timeout,
-            max_retries=self.es_max_retries,
-            timeout=self.es_timeout,
-            http_auth=http_auth,
-        )
+        pass
 
     @property
     def server(self):
-        if self._server is None:
-            self._server = self._get_server()
-        return self._server
+        pass

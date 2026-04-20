@@ -108,18 +108,13 @@ def app_has_custom(app, attr):
 
 def _unpickle_appattr(reverse_name, args):
     """Unpickle app."""
-    # Given an attribute name and a list of args, gets
-    # the attribute from the current app and calls it.
-    return get_current_app()._rgetattr(reverse_name)(*args)
+    pass
 
 
 def _after_fork_cleanup_app(app):
     # This is used with multiprocessing.register_after_fork,
     # so need to be at module level.
-    try:
-        app._after_fork()
-    except Exception as exc:  # pylint: disable=broad-except
-        logger.info('after forker raised exception: %r', exc, exc_info=1)
+    pass
 
 
 def pydantic_wrapper(
@@ -159,46 +154,7 @@ def pydantic_wrapper(
     @functools.wraps(task_fun)
     def wrapper(*task_args, **task_kwargs):
         # Validate task parameters if type hinted as BaseModel
-        bound_args = task_signature.bind(*task_args, **task_kwargs)
-        for arg_name, arg_value in bound_args.arguments.items():
-            if type_hints and arg_name in type_hints:
-                arg_annotation = type_hints[arg_name]
-            else:
-                arg_annotation = task_signature.parameters[arg_name].annotation
-
-            optional_arg = get_optional_arg(arg_annotation)
-            if optional_arg is not None and arg_value is not None:
-                arg_annotation = optional_arg
-
-            if annotation_issubclass(arg_annotation, BaseModel):
-                bound_args.arguments[arg_name] = arg_annotation.model_validate(
-                    arg_value,
-                    strict=strict,
-                    context={**context, 'celery_app': app, 'celery_task_name': task_name},
-                )
-
-        # Call the task with (potentially) converted arguments
-        returned_value = task_fun(*bound_args.args, **bound_args.kwargs)
-
-        # Dump Pydantic model if the returned value is an instance of pydantic.BaseModel *and* its
-        # class matches the typehint
-        if type_hints and 'return' in type_hints:
-            return_annotation = type_hints['return']
-        else:
-            return_annotation = task_signature.return_annotation
-
-        optional_return_annotation = get_optional_arg(return_annotation)
-        if optional_return_annotation is not None:
-            return_annotation = optional_return_annotation
-
-        if (
-            annotation_is_class(return_annotation)
-            and isinstance(returned_value, BaseModel)
-            and isinstance(returned_value, return_annotation)
-        ):
-            return returned_value.model_dump(**dump_kwargs)
-
-        return returned_value
+        pass
 
     return wrapper
 
@@ -244,7 +200,7 @@ class PendingConfiguration(UserDict, AttributeDictMixin):
 
     @cached_property
     def data(self):
-        return self.callback()
+        pass
 
 
 class Celery:
@@ -456,10 +412,7 @@ class Celery:
         set_default_app(self)
 
     def _ensure_after_fork(self):
-        if not self._after_fork_registered:
-            self._after_fork_registered = True
-            if register_after_fork is not None:
-                register_after_fork(self, _after_fork_cleanup_app)
+        pass
 
     def close(self):
         """Clean up after the application.
@@ -499,16 +452,7 @@ class Celery:
 
         Uses :data:`sys.argv` if `argv` is not specified.
         """
-        if argv is None:
-            argv = sys.argv
-
-        if 'worker' not in argv:
-            raise ValueError(
-                "The worker sub-command must be specified in argv.\n"
-                "Use app.start() to programmatically start other commands."
-            )
-
-        self.start(argv=argv)
+        pass
 
     def task(self, *args, **opts):
         """Decorator to create a task class out of any callable.
@@ -553,22 +497,7 @@ class Celery:
             _filt = filter
 
             def _create_task_cls(fun):
-                if shared:
-                    def cons(app):
-                        return app._task_from_fun(fun, **opts)
-
-                    cons.__name__ = fun.__name__
-                    connect_on_app_finalize(cons)
-                if not lazy or self.finalized:
-                    ret = self._task_from_fun(fun, **opts)
-                else:
-                    # return a proxy object that evaluates on first use
-                    ret = PromiseProxy(self._task_from_fun, (fun,), opts,
-                                       __doc__=fun.__doc__)
-                    self._pending.append(ret)
-                if _filt:
-                    return _filt(ret)
-                return ret
+                pass
 
             return _create_task_cls
 
@@ -732,13 +661,7 @@ class Celery:
             >>> os.environ['CELERY_CONFIG_MODULE'] = 'myapp.celeryconfig'
             >>> celery.config_from_envvar('CELERY_CONFIG_MODULE')
         """
-        module_name = os.environ.get(variable_name)
-        if not module_name:
-            if silent:
-                return False
-            raise ImproperlyConfigured(
-                ERR_ENVVAR_NOT_SET.strip().format(variable_name))
-        return self.config_from_object(module_name, silent=silent, force=force)
+        pass
 
     def config_from_cmdline(self, argv, namespace='celery'):
         self._conf.update(
@@ -817,29 +740,17 @@ class Celery:
                 the default modules.  Forcing will cause the auto-discovery
                 to happen immediately.
         """
-        if force:
-            return self._autodiscover_tasks(packages, related_name)
-        signals.import_modules.connect(starpromise(
-            self._autodiscover_tasks, packages, related_name,
-        ), weak=False, sender=self)
+        pass
 
     def _autodiscover_tasks(self, packages, related_name, **kwargs):
-        if packages:
-            return self._autodiscover_tasks_from_names(packages, related_name)
-        return self._autodiscover_tasks_from_fixups(related_name)
+        pass
 
     def _autodiscover_tasks_from_names(self, packages, related_name):
         # packages argument can be lazy
-        return self.loader.autodiscover_tasks(
-            packages() if callable(packages) else packages, related_name,
-        )
+        pass
 
     def _autodiscover_tasks_from_fixups(self, related_name):
-        return self._autodiscover_tasks_from_names([
-            pkg for fixup in self._fixups
-            if hasattr(fixup, 'autodiscover_tasks')
-            for pkg in fixup.autodiscover_tasks()
-        ], related_name=related_name)
+        pass
 
     def send_task(self, name, args=None, kwargs=None, countdown=None,
                   eta=None, task_id=None, producer=None, connection=None,
@@ -1072,20 +983,7 @@ class Celery:
 
     def _acquire_connection(self, pool=True):
         """Helper for :meth:`connection_or_acquire`."""
-        if pool:
-            timeout = self.conf.broker_pool_acquire_timeout
-            try:
-                return self.pool.acquire(block=True, timeout=timeout)
-            except LimitExceeded as exc:
-                pool_limit = self.conf.broker_pool_limit
-                raise OperationalError(
-                    f"Timed out waiting for a broker connection after "
-                    f"{timeout}s. All {pool_limit} connections are in use. "
-                    f"Consider increasing broker_pool_limit (currently "
-                    f"{pool_limit}) or broker_pool_acquire_timeout "
-                    f"(currently {timeout}s)."
-                ) from exc
-        return self.connection_for_write()
+        pass
 
     def connection_or_acquire(self, connection=None, pool=True, *_, **__):
         """Context used to acquire a connection from the pool.
@@ -1103,17 +1001,7 @@ class Celery:
 
     def _acquire_producer(self, timeout=None):
         """Helper for :meth:`producer_or_acquire`."""
-        try:
-            return self.producer_pool.acquire(block=True, timeout=timeout)
-        except LimitExceeded as exc:
-            pool_limit = self.conf.broker_pool_limit
-            raise OperationalError(
-                f"Timed out waiting for a broker producer after "
-                f"{timeout}s. All {pool_limit} producer slots are in use. "
-                f"Consider increasing broker_pool_limit (currently "
-                f"{pool_limit}) or broker_pool_acquire_timeout "
-                f"(currently {timeout}s)."
-            ) from exc
+        pass
 
     def producer_or_acquire(self, producer=None):
         """Context used to acquire a producer from the pool.
@@ -1134,7 +1022,7 @@ class Celery:
 
     def prepare_config(self, c):
         """Prepare configuration before it is merged with the defaults."""
-        return find_deprecated_settings(c)
+        pass
 
     def now(self):
         """Return the current time and date as a datetime."""
@@ -1147,7 +1035,7 @@ class Celery:
         Arguments:
             queues (Sequence[str]): a list of queue names to keep.
         """
-        return self.amqp.queues.select(queues)
+        pass
 
     def either(self, default_key, *defaults):
         """Get key from configuration or use default values.
@@ -1164,10 +1052,7 @@ class Celery:
         return bugreport(self)
 
     def _get_backend(self):
-        backend, url = backends.by_url(
-            self.backend_cls or self.conf.result_backend,
-            self.loader)
-        return backend(app=self, url=url)
+        pass
 
     def _finalize_pending_conf(self):
         """Get config value by key and finalize loading the configuration.
@@ -1176,58 +1061,13 @@ class Celery:
             This is used by PendingConfiguration:
                 as soon as you access a key the configuration is read.
         """
-        try:
-            conf = self._conf = self._load_config()
-        except AttributeError as err:
-            # AttributeError is not propagated, it is "handled" by
-            # PendingConfiguration parent class. This causes
-            # confusing RecursionError.
-            raise ModuleNotFoundError(*err.args) from err
-
-        return conf
+        pass
 
     def _load_config(self):
-        if isinstance(self.on_configure, Signal):
-            self.on_configure.send(sender=self)
-        else:
-            # used to be a method pre 4.0
-            self.on_configure()
-        if self._config_source:
-            self.loader.config_from_object(self._config_source)
-        self.configured = True
-        settings = detect_settings(
-            self.prepare_config(self.loader.conf), self._preconf,
-            ignore_keys=self._preconf_set_by_auto, prefix=self.namespace,
-        )
-        if self._conf is not None:
-            # replace in place, as someone may have referenced app.conf,
-            # done some changes, accessed a key, and then try to make more
-            # changes to the reference and not the finalized value.
-            self._conf.swap_with(settings)
-        else:
-            self._conf = settings
-
-        # load lazy config dict initializers.
-        pending_def = self._pending_defaults
-        while pending_def:
-            self._conf.add_defaults(maybe_evaluate(pending_def.popleft()()))
-
-        # load lazy periodic tasks
-        pending_beat = self._pending_periodic_tasks
-        while pending_beat:
-            periodic_task_args, periodic_task_kwargs = pending_beat.popleft()
-            self._add_periodic_task(*periodic_task_args, **periodic_task_kwargs)
-
-        self.on_after_configure.send(sender=self, source=self._conf)
-        return self._conf
+        pass
 
     def _after_fork(self):
-        self._pool = None
-        try:
-            self.__dict__['amqp']._producer_pool = None
-        except (AttributeError, KeyError):
-            pass
-        self.on_after_fork.send(sender=self)
+        pass
 
     def signature(self, *args, **kwargs):
         """Return a new :class:`~celery.Signature` bound to this app."""
@@ -1243,36 +1083,14 @@ class Celery:
         same signature twice make the second task override the first one. To
         avoid the override, use distinct `name` for them.
         """
-        key, entry = self._sig_to_periodic_task_entry(
-            schedule, sig, args, kwargs, name, **opts)
-        if self.configured:
-            self._add_periodic_task(key, entry, name=name)
-        else:
-            self._pending_periodic_tasks.append([(key, entry), {"name": name}])
-        return key
+        pass
 
     def _sig_to_periodic_task_entry(self, schedule, sig,
                                     args=(), kwargs=None, name=None, **opts):
-        kwargs = {} if not kwargs else kwargs
-        sig = (sig.clone(args, kwargs)
-               if isinstance(sig, abstract.CallableSignature)
-               else self.signature(sig.name, args, kwargs))
-        return name or repr(sig), {
-            'schedule': schedule,
-            'task': sig.name,
-            'args': sig.args,
-            'kwargs': sig.kwargs,
-            'options': dict(sig.options, **opts),
-        }
+        pass
 
     def _add_periodic_task(self, key, entry, name=None):
-        if name is None and key in self._conf.beat_schedule:
-            logger.warning(
-                f"Periodic task key='{key}' shadowed a previous unnamed periodic task."
-                " Pass a name kwarg to add_periodic_task to silence this warning."
-            )
-
-        self._conf.beat_schedule[key] = entry
+        pass
 
     def create_task_cls(self):
         """Create a base task class bound to this app."""
@@ -1319,7 +1137,7 @@ class Celery:
     __class_getitem__ = classmethod(types.GenericAlias)
 
     def _rgetattr(self, path):
-        return attrgetter(path)(self)
+        pass
 
     def __enter__(self):
         return self
@@ -1434,12 +1252,7 @@ class Celery:
         Note:
             This attribute is not related to the workers concurrency pool.
         """
-        if self._pool is None:
-            self._ensure_after_fork()
-            limit = self.conf.broker_pool_limit
-            pools.set_limit(limit)
-            self._pool = pools.connections[self.connection_for_write()]
-        return self._pool
+        pass
 
     @property
     def current_task(self):
@@ -1453,25 +1266,17 @@ class Celery:
         Differs from :data:`current_task` in that it's not affected
         by tasks calling other tasks directly, or eagerly.
         """
-        return get_current_worker_task()
+        pass
 
     @cached_property
     def oid(self):
         """Universally unique identifier for this app."""
-        # since 4.0: thread.get_ident() is not included when
-        # generating the process id.  This is due to how the RPC
-        # backend now dedicates a single thread to receive results,
-        # which would not work if each thread has a separate id.
-        return oid_from(self, threads=False)
+        pass
 
     @property
     def thread_oid(self):
         """Per-thread unique identifier for this app."""
-        try:
-            return self._local.oid
-        except AttributeError:
-            self._local.oid = new_oid = oid_from(self, threads=True)
-            return new_oid
+        pass
 
     @cached_property
     def amqp(self):
@@ -1485,35 +1290,26 @@ class Celery:
         Uses self._backend_cache if it is thread safe.
         Otherwise, use self._local
         """
-        if self._backend_cache is not None:
-            return self._backend_cache
-        return getattr(self._local, "backend", None)
+        pass
 
     @_backend.setter
     def _backend(self, backend):
         """Set the backend object on the app"""
-        if backend.thread_safe:
-            self._backend_cache = backend
-        else:
-            self._local.backend = backend
+        pass
 
     @property
     def backend(self):
         """Current backend instance."""
-        if self._backend is None:
-            self._backend = self._get_backend()
-        return self._backend
+        pass
 
     @property
     def conf(self):
         """Current configuration."""
-        if self._conf is None:
-            self._conf = self._load_config()
-        return self._conf
+        pass
 
     @conf.setter
     def conf(self, d):
-        self._conf = d
+        pass
 
     @cached_property
     def control(self):
@@ -1528,7 +1324,7 @@ class Celery:
     @cached_property
     def loader(self):
         """Current loader instance."""
-        return get_loader_cls(self.loader_cls)(app=self)
+        pass
 
     @cached_property
     def log(self):
@@ -1537,8 +1333,7 @@ class Celery:
 
     @cached_property
     def _canvas(self):
-        from celery import canvas
-        return canvas
+        pass
 
     @cached_property
     def tasks(self):
@@ -1552,7 +1347,7 @@ class Celery:
 
     @property
     def producer_pool(self):
-        return self.amqp.producer_pool
+        pass
 
     def uses_utc_timezone(self):
         """Check if the application uses the UTC timezone."""

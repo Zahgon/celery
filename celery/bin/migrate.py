@@ -55,7 +55,7 @@ def migrate(ctx, source, destination, **kwargs):
     """
     # TODO: Use a progress bar
     def on_migrate_task(state, body, message):
-        ctx.obj.echo(f"Migrating task {state.count}/{state.strtotal}: {body}")
+        pass
 
     migrate_tasks(Connection(source),
                   Connection(destination),

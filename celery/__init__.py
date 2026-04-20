@@ -60,10 +60,7 @@ if os.environ.get('C_IMPDEBUG'):  # pragma: no cover
 
     def debug_import(name, locals=None, globals=None,
                      fromlist=None, level=-1, real_import=builtins.__import__):
-        glob = globals or getattr(sys, 'emarfteg_'[::-1])(1).f_globals
-        importer_name = glob and glob.get('__name__') or 'unknown'
-        print(f'-- {importer_name} imports {name}')
-        return real_import(name, locals, globals, fromlist, level)
+        pass
     builtins.__import__ = debug_import
 
 # This is never executed, but tricks static analyzers (PyDev, PyCharm,
@@ -105,19 +102,11 @@ def _find_option_with_arg(argv, short_opts=None, long_opts=None):
 
 
 def _patch_eventlet():
-    import eventlet.debug
-
-    eventlet.monkey_patch()
-    blockdetect = float(os.environ.get('EVENTLET_NOBLOCK', 0))
-    if blockdetect:
-        eventlet.debug.hub_blocking_detection(blockdetect, blockdetect)
+    pass
 
 
 def _patch_gevent():
-    import gevent.monkey
-    import gevent.signal
-
-    gevent.monkey.patch_all()
+    pass
 
 
 def maybe_patch_concurrency(argv=None, short_opts=None,

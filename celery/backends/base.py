@@ -62,7 +62,7 @@ Result backends that supports chords: Redis, Database, Memcached, and more.
 
 def unpickle_backend(cls, args, kwargs):
     """Return an unpickled backend."""
-    return cls(*args, app=current_app._get_current_object(), **kwargs)
+    pass
 
 
 def _create_chord_error_with_cause(message, original_exc=None) -> ChordError:
@@ -175,7 +175,7 @@ class Backend:
 
     def mark_as_started(self, task_id, **meta):
         """Mark a task as started."""
-        return self.store_result(task_id, meta, states.STARTED)
+        pass
 
     def mark_as_done(self, task_id, result,
                      request=None, store_result=True, state=states.SUCCESS):
@@ -565,53 +565,7 @@ class Backend:
     def _get_result_meta(self, result,
                          state, traceback, request, format_date=True,
                          encode=False):
-        if state in self.READY_STATES:
-            date_done = self.app.now()
-            if format_date:
-                date_done = date_done.isoformat()
-        else:
-            date_done = None
-
-        meta = {
-            'status': state,
-            'result': result,
-            'traceback': traceback,
-            'children': self.current_task_children(request),
-            'date_done': date_done,
-        }
-
-        if request and getattr(request, 'group', None):
-            meta['group_id'] = request.group
-        if request and getattr(request, 'parent_id', None):
-            meta['parent_id'] = request.parent_id
-
-        if self.app.conf.find_value_for_key('extended', 'result'):
-            if request:
-                request_meta = {
-                    'name': getattr(request, 'task', None),
-                    'args': getattr(request, 'args', None),
-                    'kwargs': getattr(request, 'kwargs', None),
-                    'worker': getattr(request, 'hostname', None),
-                    'retries': getattr(request, 'retries', None),
-                    'queue': request.delivery_info.get('routing_key')
-                    if hasattr(request, 'delivery_info') and
-                    request.delivery_info else None,
-                }
-                if getattr(request, 'stamps', None):
-                    request_meta['stamped_headers'] = request.stamped_headers
-                    request_meta.update(request.stamps)
-
-                if encode:
-                    # args and kwargs need to be encoded properly before saving
-                    encode_needed_fields = {"args", "kwargs"}
-                    for field in encode_needed_fields:
-                        value = request_meta[field]
-                        encoded_value = self.encode(value)
-                        request_meta[field] = ensure_bytes(encoded_value)
-
-                meta.update(request_meta)
-
-        return meta
+        pass
 
     def _sleep(self, amount):
         time.sleep(amount)
@@ -677,32 +631,28 @@ class Backend:
         return result
 
     def forget(self, task_id):
-        self._cache.pop(task_id, None)
-        self._ensure_retryable(self._forget, task_id=task_id)
+        pass
 
     def _forget(self, task_id):
         raise NotImplementedError('backend does not implement forget.')
 
     def get_state(self, task_id):
         """Get the state of a task."""
-        return self.get_task_meta(task_id)['status']
+        pass
 
     get_status = get_state  # XXX compat
 
     def get_traceback(self, task_id):
         """Get the traceback for a failed task."""
-        return self.get_task_meta(task_id).get('traceback')
+        pass
 
     def get_result(self, task_id):
         """Get the result of a task."""
-        return self.get_task_meta(task_id).get('result')
+        pass
 
     def get_children(self, task_id):
         """Get the list of subtasks sent by a task."""
-        try:
-            return self.get_task_meta(task_id)['children']
-        except KeyError:
-            pass
+        pass
 
     def _ensure_not_eager(self):
         if self.app.conf.task_always_eager and not self.app.conf.task_store_eager_result:
@@ -752,7 +702,7 @@ class Backend:
 
     def reload_task_result(self, task_id):
         """Reload task result, even if it has been previously fetched."""
-        self._cache[task_id] = self.get_task_meta(task_id, cache=False)
+        pass
 
     def task_result_exists(self, task_id):
         """Check if a result exists in the backend for the given task ID.
@@ -767,7 +717,7 @@ class Backend:
 
     def reload_group_result(self, group_id):
         """Reload group result, even if it has been previously fetched."""
-        self._cache[group_id] = self.get_group_meta(group_id, cache=False)
+        pass
 
     def get_group_meta(self, group_id, cache=True):
         self._ensure_not_eager()
@@ -862,23 +812,7 @@ class Backend:
 class SyncBackendMixin:
     def iter_native(self, result, timeout=None, interval=0.5, no_ack=True,
                     on_message=None, on_interval=None):
-        self._ensure_not_eager()
-        results = result.results
-        if not results:
-            return
-
-        task_ids = set()
-        for result in results:
-            if isinstance(result, ResultSet):
-                yield result.id, result.results
-            else:
-                task_ids.add(result.id)
-
-        yield from self.get_many(
-            task_ids,
-            timeout=timeout, interval=interval, no_ack=no_ack,
-            on_message=on_message, on_interval=on_interval,
-        )
+        pass
 
     def wait_for_pending(self, result, timeout=None, interval=0.5,
                          no_ack=True, on_message=None, on_interval=None,
@@ -930,11 +864,11 @@ class SyncBackendMixin:
         return result
 
     def remove_pending_result(self, result):
-        return result
+        pass
 
     @property
     def is_async(self):
-        return False
+        pass
 
 
 class BaseBackend(Backend, SyncBackendMixin):
@@ -987,7 +921,7 @@ class BaseKeyValueStoreBackend(Backend):
         raise NotImplementedError('Does not support get_many')
 
     def _set_with_state(self, key, value, state):
-        return self.set(key, value)
+        pass
 
     def set(self, key, value):
         raise NotImplementedError('Must implement the set method.')
@@ -1094,39 +1028,17 @@ class BaseKeyValueStoreBackend(Backend):
                 break
 
     def _forget(self, task_id):
-        self.delete(self.get_key_for_task(task_id))
+        pass
 
     def _store_result(self, task_id, result, state,
                       traceback=None, request=None, **kwargs):
-        meta = self._get_result_meta(result=result, state=state,
-                                     traceback=traceback, request=request)
-        meta['task_id'] = bytes_to_str(task_id)
-
-        # Retrieve metadata from the backend, if the status
-        # is a success then we ignore any following update to the state.
-        # This solves a task deduplication issue because of network
-        # partitioning or lost workers. This issue involved a race condition
-        # making a lost task overwrite the last successful result in the
-        # result backend.
-        current_meta = self._get_task_meta_for(task_id)
-
-        if current_meta['status'] == states.SUCCESS:
-            return result
-
-        try:
-            self._set_with_state(self.get_key_for_task(task_id), self.encode(meta), state)
-        except BackendStoreError as ex:
-            raise BackendStoreError(str(ex), state=state, task_id=task_id) from ex
-
-        return result
+        pass
 
     def _save_group(self, group_id, result):
-        self._set_with_state(self.get_key_for_group(group_id),
-                             self.encode({'result': result.as_tuple()}), states.SUCCESS)
-        return result
+        pass
 
     def _delete_group(self, group_id):
-        self.delete(self.get_key_for_group(group_id))
+        pass
 
     def _get_task_meta_for(self, task_id):
         """Get task meta-data for a task by id."""
@@ -1153,20 +1065,10 @@ class BaseKeyValueStoreBackend(Backend):
 
     def _restore_group(self, group_id):
         """Get task meta-data for a task by id."""
-        meta = self.get(self.get_key_for_group(group_id))
-        # previously this was always pickled, but later this
-        # was extended to support other serializers, so the
-        # structure is kind of weird.
-        if meta:
-            meta = self.decode(meta)
-            result = meta['result']
-            meta['result'] = result_from_tuple(result, self.app)
-            return meta
+        pass
 
     def _apply_chord_incr(self, header_result_args, body, **kwargs):
-        self.ensure_chords_allowed()
-        header_result = self.app.GroupResult(*header_result_args)
-        header_result.save(backend=self)
+        pass
 
     def on_chord_part_return(self, request, state, result, **kwargs):
         if not self.implements_incr:

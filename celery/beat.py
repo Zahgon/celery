@@ -133,11 +133,7 @@ class ScheduleEntry:
 
     def _next_instance(self, last_run_at=None):
         """Return new instance, with date and count fields updated."""
-        return self.__class__(**dict(
-            self,
-            last_run_at=last_run_at or self.default_now(),
-            total_run_count=self.total_run_count + 1,
-        ))
+        pass
     __next__ = next = _next_instance  # for 2to3
 
     def __reduce__(self):
@@ -184,10 +180,7 @@ class ScheduleEntry:
         return NotImplemented
 
     def editable_fields_equal(self, other):
-        for attr in ('task', 'args', 'kwargs', 'options', 'schedule'):
-            if getattr(self, attr) != getattr(other, attr):
-                return False
-        return True
+        pass
 
     def __eq__(self, other):
         """Test schedule entries equality.
@@ -474,19 +467,13 @@ class Scheduler:
     def _ensure_connected(self):
         # callback called for each retry while the connection
         # can't be established.
-        def _error_handler(exc, interval):
-            error('beat: Connection error: %s. '
-                  'Trying again in %s seconds...', exc, interval)
-
-        return self.connection.ensure_connection(
-            _error_handler, self.app.conf.broker_connection_max_retries
-        )
+        pass
 
     def get_schedule(self):
-        return self.data
+        pass
 
     def set_schedule(self, schedule):
-        self.data = schedule
+        pass
     schedule = property(get_schedule, set_schedule)
 
     @cached_property
@@ -495,7 +482,7 @@ class Scheduler:
 
     @cached_property
     def producer(self):
-        return self.Producer(self._ensure_connected(), auto_declare=False)
+        pass
 
     @property
     def info(self):
@@ -590,10 +577,10 @@ class PersistentScheduler(Scheduler):
             break
 
     def get_schedule(self):
-        return self._store['entries']
+        pass
 
     def set_schedule(self, schedule):
-        self._store['entries'] = schedule
+        pass
     schedule = property(get_schedule, set_schedule)
 
     def sync(self):
@@ -676,7 +663,7 @@ class Service:
 
     @cached_property
     def scheduler(self):
-        return self.get_scheduler()
+        pass
 
 
 class _Threaded(Thread):

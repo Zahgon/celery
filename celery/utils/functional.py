@@ -47,10 +47,7 @@ class mlazy(lazy):
     _value = None
 
     def evaluate(self):
-        if not self.evaluated:
-            self._value = super().evaluate()
-            self.evaluated = True
-        return self._value
+        pass
 
 
 def noop(*args, **kwargs):
@@ -96,16 +93,7 @@ def firstmethod(method, on_call=None):
     """
 
     def _matcher(it, *args, **kwargs):
-        for obj in it:
-            try:
-                meth = getattr(maybe_evaluate(obj), method)
-                reply = (on_call(meth, *args, **kwargs) if on_call
-                         else meth(*args, **kwargs))
-            except AttributeError:
-                pass
-            else:
-                if reply is not None:
-                    return reply
+        pass
 
     return _matcher
 
@@ -206,37 +194,13 @@ class _regen(UserList, list):
         return list, (self.data,)
 
     def map(self, func):
-        self.__consumed = [func(el) for el in self.__consumed]
-        self.__it = map(func, self.__it)
+        pass
 
     def __length_hint__(self):
         return self.__it.__length_hint__()
 
     def __lookahead_consume(self, limit=None):
-        if not self.__done and (limit is None or limit > 0):
-            it = iter(self.__it)
-            try:
-                now = next(it)
-            except StopIteration:
-                return
-            self.__consumed.append(now)
-            # Maintain a single look-ahead to ensure we set `__done` when the
-            # underlying iterator gets exhausted
-            while not self.__done:
-                try:
-                    next_ = next(it)
-                    self.__consumed.append(next_)
-                except StopIteration:
-                    self.__done = True
-                    break
-                finally:
-                    yield now
-                now = next_
-                # We can break out when `limit` is exhausted
-                if limit is not None:
-                    limit -= 1
-                    if limit <= 0:
-                        break
+        pass
 
     def __iter__(self):
         yield from self.__consumed
@@ -265,10 +229,7 @@ class _regen(UserList, list):
 
     @property
     def data(self):
-        if not self.__done:
-            self.__consumed.extend(self.__it)
-            self.__done = True
-        return self.__consumed
+        pass
 
     def __repr__(self):
         return "<{}: [{}{}]>".format(
